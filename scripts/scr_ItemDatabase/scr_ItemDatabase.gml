@@ -8,15 +8,19 @@ function id_get_item(_id)
 	{
 		id : 0,
 		name : "Dirt",
-		sprite : spr_Block,
-		collisionMask : [0, 0, 16, 16],
+		spriteItem : spr_Test1,
+		spriteBlock : spr_Block,
+		itemLimit : 16,
+		collisionMask : [0, 0, 16, 16]
 	};
 	
 	static Stone =
 	{
 		id : 1,
 		name : "Stone",
-		sprite : spr_BlockSmall,
+		spriteItem : spr_Test2,
+		spriteBlock : spr_BlockSmall,
+		itemLimit : 32,
 		collisionMask : [4, 4, 12, 12]
 	};
 	

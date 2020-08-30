@@ -18,13 +18,13 @@ if (drawTimer % 2 == 0)
 	{
 		for (var _y = _corner1[1]; _y < _corner2[1]; _y ++)
 		{
-			var _cellInfo = worldGrid[# _x, _y];
-			if (_cellInfo != 0)
+			var _block = worldGrid[# _x, _y];
+			if (_block != 0)
 			{
 				//draw_sprite(_cellInfo.blockSprite, 0, _x * CELL_SIZE, _y * CELL_SIZE);
 				
 				//Get Sprite's Texture Properties
-				var _spriteTexture = sprite_get_texture(_cellInfo.blockSprite, 0);
+				var _spriteTexture = sprite_get_texture(_block.sprite, 0);
 				var _textureUVs = texture_get_uvs(_spriteTexture);
 
 				var _uvLeft = _textureUVs[0];	//where the texture is located on the texture page
@@ -34,8 +34,8 @@ if (drawTimer % 2 == 0)
 
 				var _spriteLeft = _x * CELL_SIZE;	//where to draw the sprite in the room
 				var _spriteTop = _y * CELL_SIZE;
-				var _spriteRight = _x * CELL_SIZE + sprite_get_width(_cellInfo.blockSprite);
-				var _spriteBottom = _y * CELL_SIZE + sprite_get_height(_cellInfo.blockSprite);
+				var _spriteRight = _x * CELL_SIZE + sprite_get_width(_block.sprite);
+				var _spriteBottom = _y * CELL_SIZE + sprite_get_height(_block.sprite);
 
 				//Add 2 Triangles to the Buffer (2 Halves of the Sprite - 3 Points Each)
 				vertex_position(vertexBuffer, _spriteLeft, _spriteTop);	//first triangle

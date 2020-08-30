@@ -1,4 +1,4 @@
-/// Function checking  for collision with a block in the worldGrid.
+/// Function checking for collision with a block in the worldGrid.
 /// modifiying variables: x, y, horizontalSpeed, verticalSpeed, touchingBlock[4]
 
 function collision()
@@ -17,14 +17,14 @@ function collision()
 		//Get the Block Struct (or 0 - Air) from the Corner Position
 		var _xRounded = (sign(horizontalSpeed == 1)) ? ceil(x) : floor(x);
 		var _collisionPoint = [(_xRounded + (sprite_width * 0.5) * (sign(horizontalSpeed) + 1)) div CELL_SIZE, (y + _spriteCellHeight * _i) div CELL_SIZE];
-		var _collisionCell = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
 	
 		//Check for Collision with the Block
-		if (_collisionCell != 0)
+		if (_collisionBlock != 0)
 		{
 			var _xOriginal = x;
 			x = (sign(horizontalSpeed) == 1) ? ceil(x) : floor(x);	//round the x value according to the movement direction
-			var _collisionMask = id_get_item(_collisionCell.blockId).collisionMask;
+			var _collisionMask = id_get_item(_collisionBlock.id).collisionMask;
 		
 			if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1],
 									_collisionPoint[0] * CELL_SIZE + _collisionMask[2], _collisionPoint[1] * CELL_SIZE + _collisionMask[3] - 1, id, true, false))
@@ -58,14 +58,14 @@ function collision()
 		//Get the Block Struct (or 0 - Air) from the Corner Position
 		var _yRounded = (sign(verticalSpeed == 1)) ? ceil(y) : floor(y);
 		var _collisionPoint = [(x + _spriteCellWidth * _i) div CELL_SIZE, (_yRounded + (sprite_height * 0.5) * (sign(verticalSpeed) + 1)) div CELL_SIZE];
-		var _collisionCell = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
 	
 		//Check for Collision with the Block
-		if (_collisionCell != 0)
+		if (_collisionBlock != 0)
 		{
 			var _yOriginal = y;
 			y = (sign(verticalSpeed == 1)) ? ceil(y) : floor(y);	//round the y value according to the movement direction
-			var _collisionMask = id_get_item(_collisionCell.blockId).collisionMask;
+			var _collisionMask = id_get_item(_collisionBlock.id).collisionMask;
 		
 			if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1] - 1,
 									_collisionPoint[0] * CELL_SIZE + _collisionMask[2] - 1, _collisionPoint[1] * CELL_SIZE + _collisionMask[3], id, true, false))

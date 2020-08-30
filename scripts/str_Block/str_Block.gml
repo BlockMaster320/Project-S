@@ -2,6 +2,6 @@
 
 function Block(_id) constructor
 {
-	blockId = _id;
-	blockSprite = id_get_item(_id).sprite;
+	id = _id;
+	sprite = id_get_item(_id).spriteBlock;
 }
