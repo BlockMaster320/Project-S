@@ -12,4 +12,4 @@ buttonLeftPressed = mouse_check_button_pressed(mb_left);
 buttonLeftReleased = mouse_check_button_released(mb_left);
 buttonRight = mouse_check_button(mb_right);
 buttonRightPressed = mouse_check_button_pressed(mb_right);
-buttonRightReleased = mouse_check_button_pressed(mb_right);
+buttonRightReleased = mouse_check_button_released(mb_right);

@@ -11,15 +11,15 @@ inventoryGrid = ds_grid_create(7, 5);
 armorList = ds_list_create(); armorList[| 3] = 0;
 toolSlot = 0;
 
-armorList[| 2] = new Item(0, 32);
+armorList[| 2] = new Slot(0, 32);
 
 //Held Slot
 heldSlot = 0;
 heldSlotItemCount = 0;
 splitList = ds_list_create();
 
-inventoryGrid[# 0, 0] = new Item(0, 5);
-inventoryGrid[# 5, 3] = new Item(1, 25);
+inventoryGrid[# 0, 0] = new Slot(0, 5);
+inventoryGrid[# 5, 3] = new Slot(1, 25);
 
 //Crafting Section
 craftingLevel = 1;

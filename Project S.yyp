@@ -19,7 +19,7 @@
     {"id":{"name":"scr_ItemDatabase","path":"scripts/scr_ItemDatabase/scr_ItemDatabase.yy",},"order":0,},
     {"id":{"name":"spr_BlockSmall","path":"sprites/spr_BlockSmall/spr_BlockSmall.yy",},"order":5,},
     {"id":{"name":"spr_PlayerSmall","path":"sprites/spr_PlayerSmall/spr_PlayerSmall.yy",},"order":2,},
-    {"id":{"name":"str_Item","path":"scripts/str_Item/str_Item.yy",},"order":1,},
+    {"id":{"name":"str_Slot","path":"scripts/str_Slot/str_Slot.yy",},"order":1,},
     {"id":{"name":"obj_Camera","path":"objects/obj_Camera/obj_Camera.yy",},"order":3,},
     {"id":{"name":"spr_Test1","path":"sprites/spr_Test1/spr_Test1.yy",},"order":6,},
     {"id":{"name":"rm_World","path":"rooms/rm_World/rm_World.yy",},"order":0,},

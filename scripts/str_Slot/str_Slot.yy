@@ -6,7 +6,7 @@
     "path": "folders/Scripts.yy",
   },
   "resourceVersion": "1.0",
-  "name": "str_Item",
+  "name": "str_Slot",
   "tags": [],
   "resourceType": "GMScript",
 }

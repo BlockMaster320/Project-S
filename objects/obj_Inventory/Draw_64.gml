@@ -44,9 +44,9 @@ if (inventoryMenu)
 			
 			draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 			
-			var _item = inventoryGrid[# _r, _c];
-			slot_draw(_item, _drawX, _drawY, _itemSize);
-			slot_interact(_item, _drawX, _drawY, inventoryGrid, _r, _c, _itemSize, _slotSize);
+			var _slot = inventoryGrid[# _r, _c];
+			slot_draw(_slot, _drawX, _drawY, _itemSize);
+			slot_interact(_slot, _drawX, _drawY, inventoryGrid, _r, _c, _itemSize, _slotSize);
 		}
 	}
 	
@@ -61,9 +61,9 @@ if (inventoryMenu)
 		
 		draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 		
-		var _item = armorList[| _i];
-		slot_draw(_item, _drawX, _drawY, _itemSize);
-		slot_interact(_item, _drawX, _drawY, armorList, _i, noone, _itemSize, _slotSize);
+		var _slot = armorList[| _i];
+		slot_draw(_slot, _drawX, _drawY, _itemSize);
+		slot_interact(_slot, _drawX, _drawY, armorList, _i, noone, _itemSize, _slotSize);
 	}
 	
 	//Draw the Tool Slot
@@ -71,9 +71,9 @@ if (inventoryMenu)
 	var _toolSlotY = _armorY + _slotSize * ds_list_size(armorList);
 			
 	draw_sprite_ext(spr_Block, 0, _toolSlotX, _toolSlotY, scale, scale, 0, c_white, 0.5);
-	var _item = toolSlot;	//draw the item slot
-	slot_draw(_item, _toolSlotX, _toolSlotY, _itemSize);
-	slot_interact(_item, _toolSlotX, _toolSlotY, toolSlot, noone, noone, _itemSize, _slotSize);
+	var _slot = toolSlot;	//draw the item slot
+	slot_draw(_slot, _toolSlotX, _toolSlotY, _itemSize);
+	slot_interact(_slot, _toolSlotX, _toolSlotY, toolSlot, noone, noone, _itemSize, _slotSize);
 	
 	//Draw the Crafting Grid && Products
 	var _craftingX = _inventoryX + (_inventoryWidth + 0.7) * _slotSize;	//set x && y top-left origin for drawing the crafting section
@@ -89,9 +89,9 @@ if (inventoryMenu)
 			
 			draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 			
-			var _item = craftingGrid[# _r, _c];
-			slot_draw(_item, _drawX, _drawY, _itemSize);
-			slot_interact(_item, _drawX, _drawY, craftingGrid, _r, _c, _itemSize, _slotSize);
+			var _slot = craftingGrid[# _r, _c];
+			slot_draw(_slot, _drawX, _drawY, _itemSize);
+			slot_interact(_slot, _drawX, _drawY, craftingGrid, _r, _c, _itemSize, _slotSize);
 		}
 	}
 	
@@ -102,8 +102,8 @@ if (inventoryMenu)
 		
 		draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 		
-		var _item = craftingProducts[| _i];
-		slot_draw(_item, _drawX, _drawY, _itemSize);
+		var _slot = craftingProducts[| _i];
+		slot_draw(_slot, _drawX, _drawY, _itemSize);
 	}
 	
 	//Draw the Held Slot
