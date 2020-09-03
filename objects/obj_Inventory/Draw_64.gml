@@ -3,114 +3,100 @@ scr_Input();
 if (keyInventory)
 	inventoryMenu = !inventoryMenu;
 
-//Draw the Inventory Menu
-if (inventoryMenu)
+//Set GUI Variables
+var _guiWidth = display_get_gui_width();
+var _guiHeight = display_get_gui_height();
+
+//Set Draw Properties
+draw_set_halign(fa_right);
+draw_set_valign(fa_bottom);
+draw_set_font(fnt_Inventory);
+
+//Draw In-Game Inventory (Inventory Wheel)
+if (inventoryWheel)
 {
-	//Set GUI Variables
-	var _guiWidth = display_get_gui_width();
-	var _guiHeight = display_get_gui_height();
+	//Get Inventory Grid Properties
+	var _inventoryWidth = ds_grid_width(inventoryGrid);
+	var _inventoryHeight = ds_grid_height(inventoryGrid);
+	var _initialPosition = selectedPosition - floor(wheelSlots * 0.5);
 	
 	//Set Slot && item Size
-	var _slotSize = SLOT_SIZE * scale;
-	var _itemSize = ITEM_SIZE * scale;
+	var _scale = scale * 0.7;
+	var _slotSize = SLOT_SIZE * _scale;
+	var _itemSize = ITEM_SIZE * _scale;
 	
+	//Draw the Inventory Wheel
+	draw_sprite_ext(spr_SlotFrame, 0, wheelCenterX - _scale * 50 - (22 * _scale) * 0.5,
+					wheelCenterY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
+	for (var _i = 0; _i < wheelSlots; _i ++)
+	{
+		var _angle = 90 + (180 / (wheelSlots - 1)) * _i;	//get draw x && y
+		var _drawX = wheelCenterX + lengthdir_x(_scale * 50, _angle) - _itemSize * 0.5;
+		var _drawY = wheelCenterY + lengthdir_y(_scale * 50, _angle) - _itemSize * 0.5;
+		
+		/*draw_circle_colour(wheelCenterX + lengthdir_x(_scale * 50, _angle),
+						   wheelCenterY + lengthdir_y(_scale * 50, _angle), 1, c_red, c_red, false);*/
+	
+		var _position = _initialPosition + _i;	//get && draw the slot
+		var _slot = position_get_slot(inventoryGrid, _position);
+		slot_draw(_slot, _drawX, _drawY, _itemSize, _scale);
+	}
+	
+	//Scroll Throught the Inventory Wheel
+	if (mouse_wheel_down()) selectedPosition += 1;
+	if (mouse_wheel_up()) selectedPosition -= 1;
+}
+
+
+//Draw && Interact with the Inventory Menu
+if (inventoryMenu)
+{
+	//SET VARIABLES//
 	//Darken the Background
 	draw_set_alpha(0.5);
 	draw_rectangle_colour(0, 0, _guiWidth, _guiHeight, c_black, c_black, c_black, c_black, false);
 	draw_set_alpha(1);
 	
-	//Set Draw Properties
-	draw_set_halign(fa_right);
-	draw_set_valign(fa_bottom);
-	draw_set_font(fnt_Inventory);
+	//Set Slot && item Size
+	var _slotSize = SLOT_SIZE * scale;
+	var _itemSize = ITEM_SIZE * scale;
 	
 	//Set Mouse Posiiton on Mouse Click
 	mouseX = window_mouse_get_x();
 	mouseY = window_mouse_get_y();
 	
-	//Draw the Inventory Grid
+	//DRAW && INTERACT WITH INVENTORY SECTIONS//
+	//Inventory Grid
 	var _inventoryWidth = ds_grid_width(inventoryGrid)	//set x && y top-left origin for drawing the inventory
 	var _inventoryHeight = ds_grid_height(inventoryGrid)
 	var _inventoryX = _guiWidth * 0.5 - _inventoryWidth * _slotSize * 0.5 + (_slotSize - _itemSize) * 0.5;
 	var _inventoryY = (ds_list_size(stationList) > 0) ? _guiHeight * 0.5 :
 					  _guiHeight * 0.5 - _inventoryHeight * _slotSize * 0.5 + (_slotSize - _itemSize) * 0.5;
 
-	for (var _c = 0; _c < ds_grid_height(inventoryGrid); _c ++)	//draw the inventory
-	{
-		for (var _r = 0; _r < ds_grid_width(inventoryGrid); _r ++)
-		{
-			var _drawX = _inventoryX + _r * _slotSize;
-			var _drawY = _inventoryY + _c * _slotSize;
-			
-			draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
-			
-			var _slot = inventoryGrid[# _r, _c];
-			slot_draw(_slot, _drawX, _drawY, _itemSize);
-			slot_interact(_slot, _drawX, _drawY, inventoryGrid, _r, _c, _itemSize, _slotSize);
-		}
-	}
+	inventory_section(inventoryGrid, 0, _inventoryX, _inventoryY, _itemSize, _slotSize);	//draw && interact with InventoryGrid
 	
-	//Draw the Armor Grid
+	//Armor Grid
 	var _armorX = _inventoryX - _slotSize * 1.7;	//set x && y top-left origin for drawing the armor
 	var _armorY = _inventoryY;
-
-	for (var _i = 0; _i < ds_list_size(armorList); _i ++)	//draw the armor slots
-	{
-		var _drawX = _armorX;
-		var _drawY = _armorY + _i * _slotSize;
-		
-		draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
-		
-		var _slot = armorList[| _i];
-		slot_draw(_slot, _drawX, _drawY, _itemSize);
-		slot_interact(_slot, _drawX, _drawY, armorList, _i, noone, _itemSize, _slotSize);
-	}
+	inventory_section(armorGrid, 0, _armorX, _armorY, _itemSize, _slotSize);	//draw && interact with armorGrid
 	
-	//Draw the Tool Slot
-	var _toolSlotX = _armorX;	//set x && y for drawing the item slot
-	var _toolSlotY = _armorY + _slotSize * ds_list_size(armorList);
-			
-	draw_sprite_ext(spr_Block, 0, _toolSlotX, _toolSlotY, scale, scale, 0, c_white, 0.5);
-	var _slot = toolSlot;	//draw the item slot
-	slot_draw(_slot, _toolSlotX, _toolSlotY, _itemSize);
-	slot_interact(_slot, _toolSlotX, _toolSlotY, toolSlot, noone, noone, _itemSize, _slotSize);
+	//Tool Slot
+	var _toolX = _armorX;	//set x && y for drawing the item slot
+	var _toolY = _armorY + _slotSize * ds_grid_height(armorGrid);
+	inventory_section(toolGrid, 0, _toolX, _toolY, _itemSize, _slotSize);	//draw && interact with toolGrid
 	
-	//Draw the Crafting Grid && Products
+	//Crafting Grid && Crafting Products
 	var _craftingX = _inventoryX + (_inventoryWidth + 0.7) * _slotSize;	//set x && y top-left origin for drawing the crafting section
 	var _craftingGridY = _inventoryY;
 	var _craftingProductsY = _inventoryY + _slotSize * (ds_grid_height(craftingGrid) + 1);
+	inventory_section(craftingGrid, 0, _craftingX, _craftingGridY, _itemSize, _slotSize);	//draw && interact with CraftingGrid && craftingProducts
+	inventory_section(craftingProducts, 1, _craftingX, _craftingProductsY, _itemSize, _slotSize);
 	
-	for (var _c = 0; _c < ds_grid_height(craftingGrid); _c ++)	//draw the crafting grid
-	{
-		for (var _r = 0; _r < ds_grid_width(craftingGrid); _r ++)
-		{
-			var _drawX = _craftingX + _r * _slotSize;
-			var _drawY = _craftingGridY + _c * _slotSize;
-			
-			draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
-			
-			var _slot = craftingGrid[# _r, _c];
-			slot_draw(_slot, _drawX, _drawY, _itemSize);
-			slot_interact(_slot, _drawX, _drawY, craftingGrid, _r, _c, _itemSize, _slotSize);
-		}
-	}
-	
-	for (var _i = 0; _i < ds_list_size(craftingProducts); _i ++)	//draw the crafting products
-	{
-		var _drawX = _craftingX + _slotSize * floor(_i * 0.5);
-		var _drawY = _craftingProductsY + _slotSize * (_i % 2 == 0);
-		
-		draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
-		
-		var _slot = craftingProducts[| _i];
-		slot_draw(_slot, _drawX, _drawY, _itemSize);
-	}
-	
-	//Draw the Held Slot
+	//Held Slot
 	if (heldSlot != 0)
 	{
 		if (heldSlot.itemCount != 0)
-			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, _itemSize);
+			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, _itemSize, scale);	//draw the held slot
 	}
 	
 	

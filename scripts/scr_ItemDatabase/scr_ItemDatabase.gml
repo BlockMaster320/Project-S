@@ -11,6 +11,7 @@ function id_get_item(_id)
 		spriteItem : spr_Test1,
 		spriteBlock : spr_Block,
 		itemLimit : 16,
+		//section : sections.inventory,
 		collisionMask : [0, 0, 16, 16]
 	};
 	
@@ -35,3 +36,11 @@ function id_get_item(_id)
 			break;
 	}
 }
+
+
+/*
+enum sections
+{
+	inventory = 0,
+	armor = 0
+}*/

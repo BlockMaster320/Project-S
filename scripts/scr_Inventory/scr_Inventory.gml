@@ -1,12 +1,58 @@
-/// Function drawing an inventory slot.
+/// Function for drawing && interacting with Inventory Section
 /// variables needed: scale
 
-function slot_draw(_slot, _x, _y, _itemSize)
+function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
+{
+	switch(_type)
+	{
+		case 0:
+		{
+			//Basic Grid
+			for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)
+			{
+				for (var _c = 0; _c < ds_grid_width(_slotSet); _c ++)
+				{
+					var _drawX = _x + _c * _slotSize;
+					var _drawY = _y + _r * _slotSize;
+			
+					draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
+			
+					var _slot = _slotSet[# _c, _r];
+					slot_draw(_slot, _drawX, _drawY, _itemSize, scale);	//draw the slot
+					slot_interact(_slot, _drawX, _drawY, _slotSet, _c, _r, _itemSize, _slotSize);	//interact with the slot
+				}
+			}
+		}
+		break;
+		
+		case 1:
+		{
+			//List Drawn as 2-Column Grid
+			for (var _i = 0; _i < ds_list_size(_slotSet); _i ++)	//draw the crafting products
+			{
+				var _drawX = _x + _slotSize * floor(_i * 0.5);
+				var _drawY = _y + _slotSize * (_i % 2 == 0);
+		
+				draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
+		
+				var _slot = _slotSet[| _i];
+				slot_draw(_slot, _drawX, _drawY, _itemSize, scale);
+			}
+		}
+		break
+	}
+}
+
+/// Function drawing an inventory slot.
+
+function slot_draw(_slot, _x, _y, _itemSize, _scale)
 {						
+	draw_sprite_ext(spr_Block, 0, _x, _y, _scale, _scale, 0, c_white, 0.5);
 	if (_slot != 0)	//draw the item
 	{
-		draw_sprite_ext(_slot.sprite, 0, _x, _y, scale, scale, 0, c_white, 1);
-		draw_text_transformed_colour(_x + _itemSize * 1.1, _y + _itemSize * 1.15, _slot.itemCount, scale * 0.75, scale * 0.75,
+		
+		draw_sprite_ext(_slot.sprite, 0, _x, _y, _scale, _scale, 0, c_white, 1);
+		draw_text_transformed_colour(_x + _itemSize * 1.1, _y + _itemSize * 1.15, _slot.itemCount, _scale * 0.75, _scale * 0.75,
 									 0, c_white, c_white, c_white, c_white, 1);
 	}
 }
@@ -178,4 +224,20 @@ function split_update()
 		_remainderTotal += _remainder;
 	}
 	heldSlot.itemCount = heldSlotItemCount - _splitItemCount * _splitListSize + _remainderTotal;
+}
+
+function position_get_slot(_slotSet, _position)
+{
+	var _columns = ds_grid_width(_slotSet);	//get number of columns && rows
+	var _rows = ds_grid_height(_slotSet);
+	
+	var _totalSlots = _columns * _rows;	//tile the position to fit into the slotSet
+	_position = _position % _totalSlots;
+	if (sign(_position) == - 1)
+		_position = _totalSlots + _position;
+	
+	var _slotRow = _position div _columns;	//get slot's column && row
+	var _slotColumn = _position % _columns;
+	
+	return _slotSet[# _slotColumn, _slotRow];
 }
