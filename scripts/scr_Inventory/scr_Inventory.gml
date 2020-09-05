@@ -86,7 +86,10 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 		if (_buttonPressed)
 		{
 			if (heldSlot != 0)	//start item splitting
+			{
 				heldSlotItemCount = heldSlot.itemCount;
+				swapSlots = true;
+			}
 			
 			if (heldSlot == 0 && _slot != 0)	//grab the item if not holding one already
 			{
@@ -94,6 +97,7 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 				{
 					heldSlot = new Slot(_slot.id, _slot.itemCount);	//take half of the items on right click
 					slot_set(_slotSet, _i, _j, 0);
+					swapSlots = false;
 				}
 				else if (_slot.itemCount != 1)
 				{
@@ -156,7 +160,7 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 				if (heldSlot.itemCount == 0)
 					heldSlot = 0;
 				
-				else if (_slot != 0 && ds_list_size(splitList) == 0 && _button != - 1)	//switch the item with the held one
+				else if (_slot != 0 && ds_list_size(splitList) == 0 && _button != - 1 && swapSlots)	//swap the item with the held one
 				{
 					var _heldSlotTemp = heldSlot;
 					heldSlot = new Slot(_slot.id, _slot.itemCount);
@@ -226,7 +230,9 @@ function split_update()
 	heldSlot.itemCount = heldSlotItemCount - _splitItemCount * _splitListSize + _remainderTotal;
 }
 
-function position_get_slot(_slotSet, _position)
+//Function returning position of a slot on a given position in a grid.
+
+function position_get_gridPosition(_slotSet, _position)
 {
 	var _columns = ds_grid_width(_slotSet);	//get number of columns && rows
 	var _rows = ds_grid_height(_slotSet);
@@ -239,5 +245,72 @@ function position_get_slot(_slotSet, _position)
 	var _slotRow = _position div _columns;	//get slot's column && row
 	var _slotColumn = _position % _columns;
 	
-	return _slotSet[# _slotColumn, _slotRow];
+	return [_slotColumn, _slotRow];
+}
+
+//Function returning a slot on a given position in a grid.
+
+function position_get_slot(_slotSet, _position)
+{
+	var _gridPosition = position_get_gridPosition(_slotSet, _position)
+	return _slotSet[# _gridPosition[0], _gridPosition[1]];
+}
+
+//Function changing value of a slot on a given position in a grid.
+
+function position_set_slot(_slotSet, _position, _value)
+{
+	var _gridPosition = position_get_gridPosition(_slotSet, _position)
+	_slotSet[# _gridPosition[0], _gridPosition[1]] = _value;
+}
+
+/// Function returning how many items will remain after collecting an item.
+
+function item_collect_remainder(_slotSet, _itemSlot)
+{
+	var _remainder = _itemSlot.itemCount;
+	var _itemLimit = id_get_item(_itemSlot.id).itemLimit;
+	
+	for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)
+	{
+		for (var _c = 0; _c < ds_grid_width(_slotSet); _c ++)
+		{
+			var _slot = _slotSet[# _c, _r];
+			
+			if (_slot == 0) return 0;
+			else if (_slot.id == _itemSlot.id)
+			{
+				_remainder -= _itemLimit - _slot.itemCount;
+				if (_remainder <= 0) return 0;
+			}
+		}
+	}
+	return _remainder;
+}
+
+/// Function collecting an item. (Adding an item to the inventory.)
+
+function item_collect(_slotSet, _itemSlot)
+{
+	for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)
+	{
+		for (var _c = 0; _c < ds_grid_width(_slotSet); _c ++)
+		{
+			var _slot = _slotSet[# _c, _r];
+			
+			if (_slot == 0)
+			{
+				_slotSet[# _c, _r] = new Slot(_itemSlot.id, _itemSlot.itemCount);
+				return;
+			}
+			else if (_slot.id == _itemSlot.id)
+			{
+				var _remainder = slot_add_items(_slot, _itemSlot.itemCount);
+				_itemSlot.itemCount = _remainder;
+				if (_remainder == 0) return;
+			}
+			
+			//show_debug_message(_itemSlot.itemCount);
+		}
+	}
 }

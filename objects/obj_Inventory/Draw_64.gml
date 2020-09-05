@@ -47,6 +47,8 @@ if (inventoryWheel)
 	if (mouse_wheel_up()) selectedPosition -= 1;
 }
 
+//Update Selected Slot
+selectedSlot = position_get_slot(inventoryGrid, selectedPosition);
 
 //Draw && Interact with the Inventory Menu
 if (inventoryMenu)
