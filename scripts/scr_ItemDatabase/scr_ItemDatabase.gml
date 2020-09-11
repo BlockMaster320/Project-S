@@ -11,6 +11,8 @@ function id_get_item(_id)
 		spriteItem : spr_Test1,
 		spriteBlock : spr_Block,
 		itemLimit : 16,
+		endurance : 40,
+		mineForce : 1,
 		//section : sections.inventory,
 		collisionMask : [0, 0, 16, 16]
 	};
@@ -22,6 +24,8 @@ function id_get_item(_id)
 		spriteItem : spr_Test2,
 		spriteBlock : spr_BlockSmall,
 		itemLimit : 32,
+		endurance : 20,
+		mineForce : 1,
 		collisionMask : [4, 4, 12, 12]
 	};
 	

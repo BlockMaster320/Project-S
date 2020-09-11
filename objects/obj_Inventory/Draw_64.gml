@@ -1,7 +1,5 @@
-//Open/Close the Inventory Menu
+//Get Player's Input
 scr_Input();
-if (keyInventory)
-	inventoryMenu = !inventoryMenu;
 
 //Set GUI Variables
 var _guiWidth = display_get_gui_width();
@@ -12,7 +10,8 @@ draw_set_halign(fa_right);
 draw_set_valign(fa_bottom);
 draw_set_font(fnt_Inventory);
 
-//Draw In-Game Inventory (Inventory Wheel)
+//INVENTORY WHEEL//
+//Draw the Inventory Wheel
 if (inventoryWheel)
 {
 	//Get Inventory Grid Properties
@@ -38,19 +37,25 @@ if (inventoryWheel)
 						   wheelCenterY + lengthdir_y(_scale * 50, _angle), 1, c_red, c_red, false);*/
 	
 		var _position = _initialPosition + _i;	//get && draw the slot
-		var _slot = position_get_slot(inventoryGrid, _position);
+		var _slot = position_slot_get(inventoryGrid, _position);
 		slot_draw(_slot, _drawX, _drawY, _itemSize, _scale);
 	}
-	
-	//Scroll Throught the Inventory Wheel
-	if (mouse_wheel_down()) selectedPosition += 1;
-	if (mouse_wheel_up()) selectedPosition -= 1;
 }
 
-//Update Selected Slot
-selectedSlot = position_get_slot(inventoryGrid, selectedPosition);
+//Scroll Throught the Inventory Wheel
+if (mouse_wheel_down()) selectedPosition += 1;
+if (mouse_wheel_up()) selectedPosition -= 1;
+if (mouse_wheel_up() || mouse_wheel_down()) mineProgress = 0;	//reset mine progress
 
-//Draw && Interact with the Inventory Menu
+//Update Selected Slot
+selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
+
+//INVENTORY MENU//
+//Open/Close the Inventory Menu
+if (keyInventory)
+	inventoryMenu = !inventoryMenu;
+
+//Draw && Interact With the Inventory Menu
 if (inventoryMenu)
 {
 	//SET VARIABLES//
@@ -106,6 +111,7 @@ if (inventoryMenu)
 	draw_line_width_colour(_guiWidth * 0.5, 0, _guiWidth * 0.5, _guiHeight, 1, c_blue, c_blue);
 	draw_line_width_colour(0, _guiHeight * 0.5, _guiWidth, _guiHeight * 0.5, 1, c_red, c_red);
 }
+
 
 
 scale *= 1 + keyboard_check(vk_add) * 0.05;
