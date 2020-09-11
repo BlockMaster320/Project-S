@@ -45,11 +45,26 @@ station2 = 0;
 //Inventory Wheel
 inventoryWheel = true;
 selectedPosition = 17;	//slot's position in the invetoryGrid
-selectedSlot = position_get_slot(inventoryGrid, selectedPosition);
+selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
 
 wheelSlots = 7;
 wheelCenterX = display_get_gui_width() * 0.97;
 wheelCenterY = display_get_gui_height() * 0.17;
+
+//Item Interaction
+approachAccel = 0.4;
+maxApproachSpeed = 5;
+approachRange = CELL_SIZE * 2;
+collectRange = 10;
+fullSlotsIdList = ds_list_create();	//ID's of the items which are collected at the moment if there's no space for
+									//items of the same id in the inventory (to prevent collecting those items)
+//Block Interaction
+previousBlockGridX = 0;
+previousBlockGridY = 0;
+interactionRange = CELL_SIZE * 5;
+inRange = false;
+mineProgress = 0;
+mineBlockEndurance = 0;
 
 enum station
 {

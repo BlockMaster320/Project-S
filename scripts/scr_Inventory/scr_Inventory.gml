@@ -1,6 +1,7 @@
+//INVENTORY MENU//
+
 /// Function for drawing && interacting with Inventory Section
 /// variables needed: scale
-
 function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
 {
 	switch(_type)
@@ -44,7 +45,6 @@ function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
 }
 
 /// Function drawing an inventory slot.
-
 function slot_draw(_slot, _x, _y, _itemSize, _scale)
 {						
 	draw_sprite_ext(spr_Block, 0, _x, _y, _scale, _scale, 0, c_white, 0.5);
@@ -60,7 +60,6 @@ function slot_draw(_slot, _x, _y, _itemSize, _scale)
 /// Function checking for an interaction with inventory slot.
 /// variables needed: heldSlot, heldSlotItemCount, splitList, mouseX, mouseY,
 /// buttonLeft, buttonLeftPressed, buttonLeftReleased
-
 function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 {
 	//Check for Mouse Selection
@@ -172,8 +171,10 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 	}
 }
 
-/// Function for adding items to an item slot returning number of items exceeding its itemLimit
 
+//SLOT INTERACTION
+
+/// Function for adding items to an item slot returning number of items exceeding its itemLimit
 function slot_add_items(_slot, _amount)
 {
 	var _itemLimit = id_get_item(_slot.id).itemLimit;
@@ -182,21 +183,7 @@ function slot_add_items(_slot, _amount)
 	return _remainder;
 }
 
-/// Function which sets a slot in its grid/list/variable to a given value.
-
-function slot_set(_slotSet, _i, _j, _value)
-{
-	if (_j != noone)	//clear a grid slot
-		_slotSet[# _i, _j] = _value;
-		
-	else if (_i != noone)	//clear a list slot
-		_slotSet[| _i] = _value;
-		
-	else _slotSet = _value;	//clear a variable slot
-}
-
 /// Function which gets a slot from its grid/list/variable.
-
 function slot_get(_slotSet, _i, _j)
 {
 	if (_j != noone)	//clear a grid slot
@@ -208,9 +195,20 @@ function slot_get(_slotSet, _i, _j)
 	else return _slotSet;	//clear a variable slot
 }
 
-/// Function updating values of items in the split list.
-//variables needed: splitList, heldSlot, heldSlotItemCount
+/// Function which sets a slot in its grid/list/variable to a given value.
+function slot_set(_slotSet, _i, _j, _value)
+{
+	if (_j != noone)	//clear a grid slot
+		_slotSet[# _i, _j] = _value;
+		
+	else if (_i != noone)	//clear a list slot
+		_slotSet[| _i] = _value;
+		
+	else _slotSet = _value;	//clear a variable slot
+}
 
+/// Function updating values of items in the split list.
+/// variables needed: splitList, heldSlot, heldSlotItemCount
 function split_update()
 {
 	var _splitListSize = ds_list_size(splitList);	//get number of items each split item should get
@@ -231,7 +229,6 @@ function split_update()
 }
 
 //Function returning position of a slot on a given position in a grid.
-
 function position_get_gridPosition(_slotSet, _position)
 {
 	var _columns = ds_grid_width(_slotSet);	//get number of columns && rows
@@ -249,23 +246,23 @@ function position_get_gridPosition(_slotSet, _position)
 }
 
 //Function returning a slot on a given position in a grid.
-
-function position_get_slot(_slotSet, _position)
+function position_slot_get(_slotSet, _position)
 {
 	var _gridPosition = position_get_gridPosition(_slotSet, _position)
 	return _slotSet[# _gridPosition[0], _gridPosition[1]];
 }
 
 //Function changing value of a slot on a given position in a grid.
-
-function position_set_slot(_slotSet, _position, _value)
+function position_slot_set(_slotSet, _position, _value)
 {
 	var _gridPosition = position_get_gridPosition(_slotSet, _position)
 	_slotSet[# _gridPosition[0], _gridPosition[1]] = _value;
 }
 
-/// Function returning how many items will remain after collecting an item.
 
+//ITEM COLLECTION//
+
+/// Function returning how many items will remain after collecting an item.
 function item_collect_remainder(_slotSet, _itemSlot)
 {
 	var _remainder = _itemSlot.itemCount;
@@ -289,7 +286,6 @@ function item_collect_remainder(_slotSet, _itemSlot)
 }
 
 /// Function collecting an item. (Adding an item to the inventory.)
-
 function item_collect(_slotSet, _itemSlot)
 {
 	for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)

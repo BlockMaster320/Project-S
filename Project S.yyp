@@ -2,7 +2,9 @@
   "resources": [
     {"id":{"name":"scr_Input","path":"scripts/scr_Input/scr_Input.yy",},"order":0,},
     {"id":{"name":"str_Block","path":"scripts/str_Block/str_Block.yy",},"order":3,},
+    {"id":{"name":"spr_MineProgress","path":"sprites/spr_MineProgress/spr_MineProgress.yy",},"order":11,},
     {"id":{"name":"obj_Player","path":"objects/obj_Player/obj_Player.yy",},"order":4,},
+    {"id":{"name":"spr_BlockSelection","path":"sprites/spr_BlockSelection/spr_BlockSelection.yy",},"order":10,},
     {"id":{"name":"fnt_Inventory","path":"fonts/fnt_Inventory/fnt_Inventory.yy",},"order":0,},
     {"id":{"name":"spr_Block","path":"sprites/spr_Block/spr_Block.yy",},"order":5,},
     {"id":{"name":"scr_Inventory","path":"scripts/scr_Inventory/scr_Inventory.yy",},"order":4,},
