@@ -78,6 +78,16 @@ if (timer % 30 == 0)
 }*/
 drawTimer ++;
 
+/*
+randomize();
+if (keyboard_check_pressed(ord("S")))
+{
+	random_set_seed(718516646);
+	var _randomValue = random(1);
+	show_debug_message(_randomValue);
+	show_debug_message(random(1));
+}*/
+
 /*/
 var _item = id_get_item(0);
 show_debug_message(_item.sprite);

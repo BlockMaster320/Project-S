@@ -1,5 +1,5 @@
 /// Script storing structs with data of all items in the game.
-/// Item's struct can be optain by its ID using the function.
+/// Item's struct can be optained by its ID using the function.
 
 function id_get_item(_id)
 {
