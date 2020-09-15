@@ -1,4 +1,5 @@
 //World Properties
+worldSeed = 0;
 worldWidth = 50;
 worldHeight = 100;
 worldLevel = 10;	//surface level from the world's top

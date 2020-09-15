@@ -4,7 +4,7 @@
 function collision()
 {
 	//Reset touchingBlock Values
-	//touchingBlock = [0, 0, 0, 0];
+	touchingBlock = [0, 0, 0, 0];
 	
 	//Horizontal Collision
 	x += horizontalSpeed;
