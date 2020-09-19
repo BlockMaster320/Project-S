@@ -29,6 +29,18 @@ function id_get_item(_id)
 		collisionMask : [4, 4, 12, 12]
 	};
 	
+	static Log =
+	{
+		id : 2,
+		name : "Log",
+		spriteItem : spr_Test3,
+		spriteBlock : spr_BlockLog,
+		itemLimit : 8,
+		endurance : 20,
+		mineForce : 1,
+		collisionMask : [3, 0, 13, 16]
+	};
+	
 	//Get a Specific Item By Its ID
 	switch(_id)
 	{
@@ -37,6 +49,9 @@ function id_get_item(_id)
 			break;
 		case 1:
 			return Stone;
+			break;
+		case 2:
+			return Log;
 			break;
 	}
 }
