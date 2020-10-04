@@ -6,7 +6,7 @@
     "path": "folders/Scripts.yy",
   },
   "resourceVersion": "1.0",
-  "name": "scr_Map",
+  "name": "scr_SaveLoad",
   "tags": [],
   "resourceType": "GMScript",
 }

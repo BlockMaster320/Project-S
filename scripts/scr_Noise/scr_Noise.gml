@@ -1,6 +1,6 @@
 /// Function returning Perlin Noise value for the given vec2 value.
 
-function noise_perlin(_x, _y, _frequency, _octaves, _lacunarity, _persistence)
+function noise_perlin(_x, _y, _frequency, _octaves, _lacunarity, _persistence, _generationSeed)
 {
 	var _finalValue = 0;
 	var _amplitude = 1;
@@ -15,16 +15,16 @@ function noise_perlin(_x, _y, _frequency, _octaves, _lacunarity, _persistence)
 		var _pointY = frac(_y * _frequency);
 		
 		//Get the Gradient Vectors of the 4 Nearest Grid Points
-		random_set_seed(random_seed_value(_cellX, _cellY, generationSeed));
+		random_set_seed(random_seed_value(_cellX, _cellY, _generationSeed));
 		var _gradientVector1 = [choose(- 1, 1), choose(- 1, 1)];
 		
-		random_set_seed(random_seed_value(_cellX + 1, _cellY, generationSeed));
+		random_set_seed(random_seed_value(_cellX + 1, _cellY, _generationSeed));
 		var _gradientVector2 = [choose(- 1, 1), choose(- 1, 1)];
 		
-		random_set_seed(random_seed_value(_cellX, _cellY + 1, generationSeed));
+		random_set_seed(random_seed_value(_cellX, _cellY + 1, _generationSeed));
 		var _gradientVector3 = [choose(- 1, 1), choose(- 1, 1)];
 		
-		random_set_seed(random_seed_value(_cellX + 1, _cellY + 1, generationSeed));
+		random_set_seed(random_seed_value(_cellX + 1, _cellY + 1, _generationSeed));
 		var _gradientVector4 = [choose(- 1, 1), choose(- 1, 1)];
 		
 		

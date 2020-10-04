@@ -8,9 +8,17 @@ mouseX = 0;
 mouseY = 0;
 
 //Player Sections
-inventoryGrid = ds_grid_create(3, 2);
-armorGrid = ds_grid_create(1, 4);
-toolGrid = ds_grid_create(1, 1);
+inventoryWidth = 3;	//set invenory grid
+inventoryHeight = 2;
+inventoryGrid = ds_grid_create(inventoryWidth, inventoryHeight);
+
+armorWidth = 1;	//set armor grid
+armorHeight = 4;
+armorGrid = ds_grid_create(armorWidth, armorHeight);
+
+toolWidth = 1;	//set tool grid
+toolHeight = 1;
+toolGrid = ds_grid_create(toolWidth, toolHeight);
 
 inventoryGrid[# 0, 0] = new Slot(0, 16);	//add items for testing
 inventoryGrid[# 1, 0] = new Slot(0, 16);

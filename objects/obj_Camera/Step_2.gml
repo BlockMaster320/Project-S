@@ -15,9 +15,15 @@ if (keyboard_check_pressed(ord("P")))	//reset the zoom && movement values
 }
 
 //Follow the Player
-var _x = obj_Player.x + (obj_Player.sprite_width * 0.5) - viewWidth * 0.5;
-var _y = obj_Player.y + (obj_Player.sprite_height * 0.5) - viewHeight * 0.5;
+var _x = camera_get_view_x(VIEW);
+var _y = camera_get_view_y(VIEW);
+if (instance_exists(obj_Player))
+{
+	_x = obj_Player.x + (obj_Player.sprite_width * 0.5) - viewWidth * 0.5;
+	_y = obj_Player.y + (obj_Player.sprite_height * 0.5) - viewHeight * 0.5;
+}
 
+//Clamp && Set the Camera's Position
 _x = clamp(_x, 0, obj_WorldManager.worldWidth * CELL_SIZE - viewWidth);
 _y = clamp(_y, 0, obj_WorldManager.worldHeight * CELL_SIZE - viewHeight);
 camera_set_view_pos(VIEW, _x + freeX, _y + freeY);

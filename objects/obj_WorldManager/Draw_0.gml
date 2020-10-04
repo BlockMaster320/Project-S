@@ -1,6 +1,11 @@
 //Set the Area of worldGrid to Draw
-var _playerGridX = obj_Player.x div CELL_SIZE;
-var _playerGridY = obj_Player.y div CELL_SIZE;
+var _playerGridX = 0;
+var _playerGridY = 0;
+if (instance_exists(obj_Player))
+{
+	_playerGridX = obj_Player.x div CELL_SIZE;
+	_playerGridY = obj_Player.y div CELL_SIZE;
+}
 var _chunkWidth = obj_Camera.viewWidth div CELL_SIZE;
 var _chunkHeight = obj_Camera.viewHeight div CELL_SIZE;
 

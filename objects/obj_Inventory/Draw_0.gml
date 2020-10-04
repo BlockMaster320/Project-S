@@ -8,7 +8,7 @@ if (instance_exists(obj_Player))
 }																// */
 
 //Get Selected Block's Position
-var _blockDrawX = (mouse_x div CELL_SIZE) * CELL_SIZE;		
+var _blockDrawX = (mouse_x div CELL_SIZE) * CELL_SIZE;
 var _blockDrawY = (mouse_y div CELL_SIZE) * CELL_SIZE;
 
 //Draw Block Selection
