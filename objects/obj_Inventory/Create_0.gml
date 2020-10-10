@@ -41,7 +41,7 @@ splitList = ds_list_create();
 craftingLevel = 1;
 craftingGrid = ds_grid_create(craftingLevel, 2);
 craftingProducts = ds_list_create();
-craftingProducts[| 6] = 0
+//craftingProducts[| 6] = 0
 
 //Stations Section
 stationList = ds_list_create();

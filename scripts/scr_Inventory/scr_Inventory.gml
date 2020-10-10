@@ -2,7 +2,7 @@
 
 /// Function for drawing && interacting with Inventory Section
 /// variables needed: scale
-function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
+function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize, _updateCrafting, _takeOnly)
 {
 	switch(_type)
 	{
@@ -20,7 +20,7 @@ function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
 			
 					var _slot = _slotSet[# _c, _r];
 					slot_draw(_slot, _drawX, _drawY, _itemSize, scale);	//draw the slot
-					slot_interact(_slot, _drawX, _drawY, _slotSet, _c, _r, _itemSize, _slotSize);	//interact with the slot
+					slot_interact(_slot, _drawX, _drawY, _slotSet, _c, _r, _itemSize, _slotSize, _updateCrafting, _takeOnly);	//interact with the slot
 				}
 			}
 		}
@@ -38,6 +38,7 @@ function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize)
 		
 				var _slot = _slotSet[| _i];
 				slot_draw(_slot, _drawX, _drawY, _itemSize, scale);
+				slot_interact(_slot, _drawX, _drawY, _slotSet, _i, noone, _itemSize, _slotSize, _updateCrafting, _takeOnly);
 			}
 		}
 		break
@@ -60,7 +61,7 @@ function slot_draw(_slot, _x, _y, _itemSize, _scale)
 /// Function checking for an interaction with inventory slot.
 /// variables needed: heldSlot, heldSlotItemCount, splitList, mouseX, mouseY,
 /// buttonLeft, buttonLeftPressed, buttonLeftReleased
-function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
+function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize, _updateCrafting, _takeOnly)
 {
 	//Check for Mouse Selection
 	var _slotBorder = (_slotSize - _itemSize) * 0.5;
@@ -84,34 +85,79 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 		//Check for Button Click
 		if (_buttonPressed)
 		{
-			if (heldSlot != 0)	//start item splitting
+			if (heldSlot != 0)	//take an item of the same ID / start splitting the held items
 			{
-				heldSlotItemCount = heldSlot.itemCount;
-				swapSlots = true;
+				if (!_takeOnly)	//start item splitting
+				{
+					heldSlotItemCount = heldSlot.itemCount;
+					swapSlots = true;
+				}
+				
+				else	//take the crafting product if the held slot's item has the same ID
+				{
+					if (_slot.id == heldSlot.id)
+					{
+						var _craftAmount = id_get_item(_slot.id).craftAmount;	//get the maximum number of items that can be taken
+						var _itemsToAdd = ((id_get_item(_slot.id).itemLimit - heldSlot.itemCount) div _craftAmount) * _craftAmount;
+						
+						if (_button == 1)	//add all the crafting product's items
+							_itemsToAdd = min(_itemsToAdd, _slot.itemCount);
+						else				//add crafting products's craftAmount of its items
+							_itemsToAdd = min(_itemsToAdd, _craftAmount);
+						
+						_slot.itemCount -= _itemsToAdd;	//transfer the items
+						heldSlot.itemCount += _itemsToAdd
+						if (_slot.itemCount == 0)
+							slot_set(_slotSet, _i, _j, 0);
+						
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _itemsToAdd);
+					}
+					swapSlots = false;
+				}
 			}
 			
-			if (heldSlot == 0 && _slot != 0)	//grab the item if not holding one already
+			if (heldSlot == 0 && _slot != 0)	//take the item if not holding one already
 			{
 				if (_button == 1)	//take all the items on left click
 				{
-					heldSlot = new Slot(_slot.id, _slot.itemCount);	//take half of the items on right click
+					heldSlot = new Slot(_slot.id, _slot.itemCount);
 					slot_set(_slotSet, _i, _j, 0);
 					swapSlots = false;
+					
+					if (_takeOnly)
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _slot.itemCount);
 				}
-				else if (_slot.itemCount != 1)
+				else if (_slot.itemCount != 1)	//right click
 				{
-					var _itemPart = round(_slot.itemCount / 2);
-					heldSlot = new Slot(_slot.id, _itemPart);
-					_slot.itemCount -= _itemPart;
+					if (!_takeOnly)	//take half of the items
+					{
+						var _itemPart = round(_slot.itemCount / 2);
+						heldSlot = new Slot(_slot.id, _itemPart);
+						_slot.itemCount -= _itemPart;
+					}
+					
+					else	//take crafting product's craftAmount of its items
+					{
+						var _craftAmount = id_get_item(_slot.id).craftAmount;
+						heldSlot = new Slot(_slot.id, _craftAmount);
+						_slot.itemCount -= _craftAmount;
+						if (_slot.itemCount == 0)
+							slot_set(_slotSet, _i, _j, 0);
+						
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _craftAmount);
+					}
 				}
 			}
 			_slot = slot_get(_slotSet, _i, _j);	//update the item data
+			
+			if (_updateCrafting)
+				crafting_update_products(obj_Inventory.craftingGrid);	//update the craftingProducts list
 		}
 		
 		//Check for Button Hold (Item Placing/Splitting)
 		if (_buttonHold)
 		{
-			if (heldSlot != 0 && ds_list_size(splitList) < heldSlotItemCount)
+			if (heldSlot != 0 && ds_list_size(splitList) < heldSlotItemCount && !_takeOnly)
 			{
 				if (_slot == 0)	//set the slot with no item to the held item
 				{
@@ -138,13 +184,15 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 						var _splitSlot = [_slotSet, _i, _j, 0];
 						ds_list_add(splitList, _splitSlot);
 						
-						if (_button == 1)	//update the split slots when holding left btton
+						if (_button == 1)	//update the split slots when holding left button
 							split_update();
 						else if (_slot.itemCount + 1 <= id_get_item(_slot.id).itemLimit)	//add 1 item to the current slot when holding right btton
 						{
 							_slot.itemCount += 1;
 							heldSlot.itemCount -= 1;
 						}
+						
+						crafting_update_products(obj_Inventory.craftingGrid);	//update the craftingProducts list
 					}
 				}
 			}
@@ -174,7 +222,7 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize)
 
 //SLOT INTERACTION
 
-/// Function for adding items to an item slot returning number of items exceeding its itemLimit
+/// Function for adding items to an item slot && returning number of items exceeding its itemLimit
 function slot_add_items(_slot, _amount)
 {
 	var _itemLimit = id_get_item(_slot.id).itemLimit;
@@ -228,7 +276,8 @@ function split_update()
 	heldSlot.itemCount = heldSlotItemCount - _splitItemCount * _splitListSize + _remainderTotal;
 }
 
-//Function returning position of a slot on a given position in a grid.
+/// Function returning position of a slot on a given position in a grid.
+
 function position_get_gridPosition(_slotSet, _position)
 {
 	var _columns = ds_grid_width(_slotSet);	//get number of columns && rows
@@ -245,14 +294,16 @@ function position_get_gridPosition(_slotSet, _position)
 	return [_slotColumn, _slotRow];
 }
 
-//Function returning a slot on a given position in a grid.
+/// Function returning a slot on a given position in a grid.
+
 function position_slot_get(_slotSet, _position)
 {
 	var _gridPosition = position_get_gridPosition(_slotSet, _position)
 	return _slotSet[# _gridPosition[0], _gridPosition[1]];
 }
 
-//Function changing value of a slot on a given position in a grid.
+/// Function changing value of a slot on a given position in a grid.
+
 function position_slot_set(_slotSet, _position, _value)
 {
 	var _gridPosition = position_get_gridPosition(_slotSet, _position)
@@ -263,6 +314,7 @@ function position_slot_set(_slotSet, _position, _value)
 //ITEM COLLECTION//
 
 /// Function returning how many items will remain after collecting an item.
+
 function item_collect_remainder(_slotSet, _itemSlot)
 {
 	var _remainder = _itemSlot.itemCount;
@@ -286,6 +338,7 @@ function item_collect_remainder(_slotSet, _itemSlot)
 }
 
 /// Function collecting an item. (Adding an item to the inventory.)
+
 function item_collect(_slotSet, _itemSlot)
 {
 	for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)
@@ -305,8 +358,107 @@ function item_collect(_slotSet, _itemSlot)
 				_itemSlot.itemCount = _remainder;
 				if (_remainder == 0) return;
 			}
+		}
+	}
+}
+
+//CRAFTING//
+
+//Function checking the slots in the crafting grid && updating the crafting products accordingly.
+
+function crafting_update_products(_craftingGrid)
+{
+	//Create a Map of Resources (Items That Can Be Used for Crafting)
+	var _resourceMap = ds_map_create();
+	for (var _r = 0; _r < ds_grid_height(_craftingGrid); _r ++)
+	{
+		for (var _c = 0; _c < ds_grid_width(_craftingGrid); _c ++)
+		{
+			var _slot = craftingGrid[# _c, _r];
 			
-			//show_debug_message(_itemSlot.itemCount);
+			if (_slot != 0)
+			{
+				//Add the Slot's Item Data to the resourceMap
+				if (is_undefined(_resourceMap[? _slot.id]))
+					_resourceMap[? _slot.id] = _slot.itemCount;	//create new key for the item
+				else
+					_resourceMap[? _slot.id] += _slot.itemCount;	//add the slot's itemCount to an existing key
+			}
+		}
+	}
+	
+	//Create a List of Crafting Products
+	var _productList = ds_list_create();
+	for (var _id = 0; _id < ITEM_NUMBER; _id ++)	//loop through all the existing items
+	{
+		//Get the Resources Needed to Craft the Item
+		var _item = id_get_item(_id);
+		var _craftItems = _item.craftItems;
+		var _timesCanBeCrafted = infinity;	//how many times the item can be crafted
+		
+		//Check if There Are All the Resources Needed in the reourceMap
+		for (var _i = 0; _i < array_length(_craftItems); _i ++)	//loop through all the item's craft items
+		{
+			var _craftItem = _craftItems[_i]
+			var _resourceItemCount = _resourceMap[? _craftItem[0]];
+			if (!is_undefined(_resourceItemCount))	//check if there's the id needed in the reourceMap
+			{
+				_timesCanBeCrafted = min(_timesCanBeCrafted, _resourceItemCount div _craftItem[1]);
+				if (_timesCanBeCrafted == 0)
+					break;
+			}
+			else 
+			{
+				_timesCanBeCrafted = 0;
+				break;
+			}
+		}
+		
+		//Add the Item to the prductList
+		if (_timesCanBeCrafted != 0)
+		{
+			var _productItemCount = _timesCanBeCrafted * _item.craftAmount;
+			_productItemCount = clamp(_productItemCount, 1, _item.itemLimit);
+			ds_list_add(_productList, new Slot(_id, _productItemCount));
+		}
+	}
+	obj_Inventory.craftingProducts = _productList;
+}
+
+/// Function updating the the slots in the craftingGrid according to taken crafting products.
+
+function crafting_update_resources(_craftingGrid, _productId, _productItemCount)
+{
+	//Get the Crafring Product Data
+	var _timesCrafted = _productItemCount div id_get_item(_productId).craftAmount;
+	var _craftItems = id_get_item(_productId).craftItems;
+	
+	//Update the Resources
+	for (var _i = 0; _i < array_length(_craftItems); _i ++)	//loop through the items needed to craft the product
+	{
+		var _craftItem = _craftItems[_i];
+		var _resourceItemsNeeded = _craftItem[1] * _timesCrafted;	//get how many items of the product craftItem's ID has to be subtracted from the craftingGrid's slots
+		
+		for (var _r = 0; _r < ds_grid_height(_craftingGrid); _r ++)	//loop through the inventoryGrid
+		{
+			for (var _c = 0; _c < ds_grid_width(_craftingGrid); _c ++)
+			{
+				//Subtract the Needed Items from the Slot
+				var _slot = _craftingGrid[# _c, _r];
+				if (_slot != 0)
+				{
+					if (_slot.id == _craftItem[0])
+					{
+						_resourceItemsNeeded -= _slot.itemCount;
+						_slot.itemCount = abs(clamp(_resourceItemsNeeded, - infinity, 0));
+						
+						if (_slot.itemCount == 0)
+							slot_set(_craftingGrid, _c, _r, 0);
+						if (_resourceItemsNeeded <= 0) break;
+					}
+				}
+			}
+			if (_resourceItemsNeeded <= 0) break;
 		}
 	}
 }

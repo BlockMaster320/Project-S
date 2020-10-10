@@ -137,4 +137,3 @@ previousBlockGridY = _blockGridY;
 show_debug_message("\nblockGridX: " + string(_blockGridX));
 show_debug_message("blockGridY: " + string(_blockGridY));*/
 //show_debug_message("selectedBlock: " + string(_selectedBlock));
-
