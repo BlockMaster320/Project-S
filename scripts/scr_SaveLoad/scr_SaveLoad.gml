@@ -141,7 +141,6 @@ function world_load(_file)
 			{
 				horizontalSpeed = _horizontalSpeed;
 				verticalSpeed = _verticalSpeed;
-				show_debug_message(_itemId);
 				itemSlot = new Slot(_itemId, _itemCount);
 			}
 		}

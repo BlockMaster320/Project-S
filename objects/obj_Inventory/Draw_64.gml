@@ -80,24 +80,27 @@ if (inventoryMenu)
 	var _inventoryY = (ds_list_size(stationList) > 0) ? _guiHeight * 0.5 :
 					  _guiHeight * 0.5 - _inventoryHeight * _slotSize * 0.5 + (_slotSize - _itemSize) * 0.5;
 
-	inventory_section(inventoryGrid, 0, _inventoryX, _inventoryY, _itemSize, _slotSize);	//draw && interact with InventoryGrid
+	inventory_section(inventoryGrid, 0, _inventoryX, _inventoryY, _itemSize, _slotSize, false, false);	//draw && interact with InventoryGrid
 	
 	//Armor Grid
 	var _armorX = _inventoryX - _slotSize * 1.7;	//set x && y top-left origin for drawing the armor
 	var _armorY = _inventoryY;
-	inventory_section(armorGrid, 0, _armorX, _armorY, _itemSize, _slotSize);	//draw && interact with armorGrid
+	inventory_section(armorGrid, 0, _armorX, _armorY, _itemSize, _slotSize, false, false);	//draw && interact with armorGrid
 	
 	//Tool Slot
 	var _toolX = _armorX;	//set x && y for drawing the item slot
 	var _toolY = _armorY + _slotSize * ds_grid_height(armorGrid);
-	inventory_section(toolGrid, 0, _toolX, _toolY, _itemSize, _slotSize);	//draw && interact with toolGrid
+	inventory_section(toolGrid, 0, _toolX, _toolY, _itemSize, _slotSize, false, false);	//draw && interact with toolGrid
 	
-	//Crafting Grid && Crafting Products
-	var _craftingX = _inventoryX + (_inventoryWidth + 0.7) * _slotSize;	//set x && y top-left origin for drawing the crafting section
+	//Crafting Grid
+	var _craftingGridX = _inventoryX + (_inventoryWidth + 0.7) * _slotSize;	//set x && y top-left origin for drawing the crafting section
 	var _craftingGridY = _inventoryY;
+	inventory_section(craftingGrid, 0, _craftingGridX, _craftingGridY, _itemSize, _slotSize, true, false);	//draw && interact with CraftingGrid && craftingProducts
+	
+	//Crafting Products
+	var _craftingProductsX = _craftingGridX;
 	var _craftingProductsY = _inventoryY + _slotSize * (ds_grid_height(craftingGrid) + 1);
-	inventory_section(craftingGrid, 0, _craftingX, _craftingGridY, _itemSize, _slotSize);	//draw && interact with CraftingGrid && craftingProducts
-	inventory_section(craftingProducts, 1, _craftingX, _craftingProductsY, _itemSize, _slotSize);
+	inventory_section(craftingProducts, 1, _craftingProductsX, _craftingProductsY, _itemSize, _slotSize, true, true);
 	
 	//Held Slot
 	if (heldSlot != 0)
