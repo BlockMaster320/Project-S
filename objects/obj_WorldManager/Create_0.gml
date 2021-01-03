@@ -1,6 +1,6 @@
 //World Properties
 worldSeed = 0;
-generationSeed = get_generation_seed(worldSeed);	//the actual value to use when generating the noise values
+generationSeed = 0;	//the actual value to use when generating the noise values
 
 /*worldWidth = 50;
 worldHeight = 100;*/

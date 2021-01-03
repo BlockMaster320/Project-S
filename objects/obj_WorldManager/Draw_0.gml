@@ -1,10 +1,10 @@
 //Set the Area of worldGrid to Draw
 var _playerGridX = 0;
 var _playerGridY = 0;
-if (instance_exists(obj_Player))
+if (instance_exists(obj_PlayerLocal))
 {
-	_playerGridX = obj_Player.x div CELL_SIZE;
-	_playerGridY = obj_Player.y div CELL_SIZE;
+	_playerGridX = obj_PlayerLocal.x div CELL_SIZE;
+	_playerGridY = obj_PlayerLocal.y div CELL_SIZE;
 }
 var _chunkWidth = obj_Camera.viewWidth div CELL_SIZE;
 var _chunkHeight = obj_Camera.viewHeight div CELL_SIZE;
@@ -78,7 +78,7 @@ if (timer % 30 == 0)
 {
 	//instance_deactivate_layer("TestBlocks");
 	instance_deactivate_object(obj_TestBlock);
-	instance_activate_region(obj_Player.x - obj_Camera.viewWidth * 0.5, obj_Player.y - obj_Camera.viewHeight * 0.5,
+	instance_activate_region(obj_PlayerLocal.x - obj_Camera.viewWidth * 0.5, obj_PlayerLocal.y - obj_Camera.viewHeight * 0.5,
 							 obj_Camera.viewWidth, obj_Camera.viewHeight, true);
 }*/
 drawTimer ++;

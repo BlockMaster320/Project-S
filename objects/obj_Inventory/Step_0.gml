@@ -4,10 +4,10 @@ scr_Input();
 //Get Player's Center Position
 var _playerX = 0;
 var _playerY = 0;
-if (instance_exists(obj_Player))
+if (instance_exists(obj_PlayerLocal))
 {
-	_playerX = obj_Player.x + obj_Player.sprite_width * 0.5;
-	_playerY = obj_Player.y + obj_Player.sprite_height * 0.5;
+	_playerX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
+	_playerY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
 }
 
 //ITEM INTERACTION//
@@ -31,7 +31,7 @@ for (var _i = 0; _i < instance_number(obj_Item); _i ++)	//loop throught all the 
 		{
 			if (_remainder == 0) _item.collectItem = true;	//collect the whole item
 			
-			else if (_remainder < _itemSlot.itemCount)	//divide the item into 2 items (if there's not enough space for all the items)
+			else if (_remainder < _itemSlot.itemCount)	//divide the item object into 2 item objects (if there's not enough space for all the items)
 			{
 				var _newItem = instance_create_layer(_item.x, _item.y, "Items", obj_Item);	//create the part that's not going to be collected
 				_newItem.itemSlot = new Slot(_itemSlot.id, _remainder);
@@ -118,7 +118,7 @@ if (buttonLeftReleased || (_blockGridX != previousBlockGridX || _blockGridY != p
 //Block Placing
 if (buttonRightPressed && inRange && selectedSlot != 0 && _selectedBlock == 0)
 {
-	var _isOverlappingPlayer = check_block_collision(obj_Player, selectedSlot.id, _blockGridX, _blockGridY);
+	var _isOverlappingPlayer = check_block_collision(obj_PlayerLocal, selectedSlot.id, _blockGridX, _blockGridY);
 	if (!_isOverlappingPlayer)
 	{
 		obj_WorldManager.worldGrid[# _blockGridX, _blockGridY] = new Block(selectedSlot.id);

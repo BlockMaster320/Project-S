@@ -1,10 +1,10 @@
 //Get Player's Center Position									// /*for testing only
 var _playerX = 0;
 var _playerY = 0;
-if (instance_exists(obj_Player))
+if (instance_exists(obj_PlayerLocal))
 {
-	_playerX = obj_Player.x + obj_Player.sprite_width * 0.5;
-	_playerY = obj_Player.y + obj_Player.sprite_height * 0.5;
+	_playerX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
+	_playerY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
 }																// */
 
 //Get Selected Block's Position

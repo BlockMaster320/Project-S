@@ -41,6 +41,8 @@ splitList = ds_list_create();
 craftingLevel = 1;
 craftingGrid = ds_grid_create(craftingLevel, 2);
 craftingProducts = ds_list_create();
+craftingProductsLength = 2;	//the number of columns of crafting products slots will be drawn
+craftingProductsPosition = 0;	//number of the collumn from which to draw the crafting products
 //craftingProducts[| 6] = 0
 
 //Stations Section

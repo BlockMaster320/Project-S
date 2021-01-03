@@ -1,12 +1,15 @@
 //WORLD LOADING && CREATING
 //Load the Game Data to a Variable
+/*
 if (keyboard_check_pressed(ord("C")))
 {
 	if (file_exists("gamesave.sav"))
 		gameFileMap = json_decode(json_string_load("gamesave.sav"));
-}
+}*/
 
+//IN-GAME WORLD SELECION
 //Draw && Interact with the World Selection
+/*
 if (keyboard_check(ord("C")))
 {
 	//Get GUI Properties
@@ -18,7 +21,7 @@ if (keyboard_check(ord("C")))
 	var _worldFileNumber = ds_list_size(_worldFileList);
 	
 	//Draw the World Selection
-	for (var _i = 0; _i <_worldFileNumber  + 1; _i ++)
+	for (var _i = 0; _i <_worldFileNumber + 1; _i ++)
 	{
 		var _selectionText = (_i == _worldFileNumber) ? "CREATE NEW WORLD" : _worldFileList[| _i];
 		draw_text_transformed_colour(_guiWidth - 50, _guiHeight - 400 + _i * 30, _selectionText, 2, 2, 0,
@@ -92,3 +95,4 @@ if (keyboard_check_released(ord("C")))
 	}
 	gameFileMap = noone;
 }
+*/
