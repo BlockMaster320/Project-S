@@ -124,7 +124,7 @@ function world_load(_file)
 		}
 		
 		//Instantiate Loaded Items
-		with (obj_Item) instance_destroy();	//destroy all existing items
+		/*with (obj_Item) instance_destroy();*/ //destroy all existing items
 		for (var _i = 0; _i < ds_list_size(_itemList); _i ++)
 		{
 			var _itemMap = _itemList[| _i];
@@ -150,6 +150,46 @@ function world_load(_file)
 	}
 }
 
+function world_create(_worldName)
+{
+	//Create a Name for the New World File
+	var _worldFile = _worldName + ".sav";
+		
+	//Destroy the World Entities && Clear the Data Structures
+	world_clear();
+	
+	//Activate the World Control Objects
+	instance_activate_layer("WorldManagers");
+		
+	//Generate a New World && Set Its Properties
+	var _worldSeed = irandom(9999);
+	var _generationSeed = get_generation_seed(_worldSeed);
+	var _worldWidth = 50;
+	var _worldHeight = 100;
+		
+	with (obj_WorldManager)	//set the new world properties in the WorldManager
+	{
+		worldSeed = _worldSeed;
+		generationSeed = _generationSeed;
+		worldWidth = _worldWidth;
+		worldHeight = _worldHeight;
+		worldGrid = world_generate(_worldWidth, _worldHeight, _generationSeed, 10);
+	}
+	
+	//Spawn the Player
+	instance_create_layer(100, 50, "Entities", obj_PlayerLocal);
+	
+	//Save the New World to a File
+	obj_GameManager.worldFile = _worldFile;
+	world_save(_worldFile);
+		
+	//Add the World File to the worldFileList && Update the gameFile
+	ds_list_add(worldFileList, _worldFile);
+	ds_map_add_list(gameFileMap, "worldFileList", worldFileList);
+	var _saveString = json_encode(gameFileMap);
+	json_string_save(_saveString, "gamesave.sav");
+}
+
 /// Function clearing the world's content. (Destroying objects, clearing data structures.)
 
 function world_clear()
@@ -157,9 +197,6 @@ function world_clear()
 	//Destroy Objects
 	with (obj_Entity) instance_destroy();
 	with (obj_Item) instance_destroy();
-	
-	//Spawn the Player
-	instance_create_layer(100, 50, "Entities", obj_Player);
 	
 	//Clear the Inventory Data Structures
 	with (obj_Inventory)
@@ -173,8 +210,8 @@ function world_clear()
 		ds_list_clear(stationList);
 	}
 	
-	//Destroy the worldGrid
-	with (obj_WorldManager) ds_grid_destroy(worldGrid);
+	//Clear the worldGrid
+	with (obj_WorldManager) ds_grid_clear(worldGrid, 0);
 }
 
 /// Function saving a JSON string to a given file using a buffer.

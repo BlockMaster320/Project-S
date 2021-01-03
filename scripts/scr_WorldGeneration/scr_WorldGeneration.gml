@@ -1,6 +1,6 @@
 /// Function generating a new world.
 
- function generate_world(_worldWidth, _worldHeight, _generationSeed, _seaLevel)
+ function world_generate(_worldWidth, _worldHeight, _generationSeed, _seaLevel)
 {
 	//Generate the World
 	var _worldGrid = ds_grid_create(_worldWidth, _worldHeight);

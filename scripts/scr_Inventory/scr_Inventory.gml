@@ -1,7 +1,7 @@
 //INVENTORY MENU//
 
 /// Function for drawing && interacting with Inventory Section
-/// variables needed: scale
+/// variables needed: scale, craftingProductsPosition, craftingProductsLength
 function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize, _updateCrafting, _takeOnly)
 {
 	switch(_type)
@@ -29,7 +29,8 @@ function inventory_section(_slotSet, _type, _x, _y, _itemSize, _slotSize, _updat
 		case 1:
 		{
 			//List Drawn as 2-Column Grid
-			for (var _i = 0; _i < ds_list_size(_slotSet); _i ++)	//draw the crafting products
+			var _lastSlotIndex = min(craftingProductsPosition * 2 + craftingProductsLength * 2, ds_list_size(_slotSet));
+			for (var _i = craftingProductsPosition * 2; _i < _lastSlotIndex; _i ++)	//draw the crafting products
 			{
 				var _drawX = _x + _slotSize * floor(_i * 0.5);
 				var _drawY = _y + _slotSize * (_i % 2 == 0);
@@ -213,6 +214,8 @@ function slot_interact(_slot, _x, _y, _slotSet, _i, _j, _itemSize, _slotSize, _u
 					heldSlot = new Slot(_slot.id, _slot.itemCount);
 					slot_set(_slotSet, _i, _j, _heldSlotTemp);
 				}
+				
+				crafting_update_products(obj_Inventory.craftingGrid);	//update the craftingProducts list
 			}
 			ds_list_clear(splitList);
 		}

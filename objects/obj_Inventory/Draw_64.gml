@@ -43,9 +43,12 @@ if (inventoryWheel)
 }
 
 //Scroll Throught the Inventory Wheel
-if (mouse_wheel_down()) selectedPosition += 1;
-if (mouse_wheel_up()) selectedPosition -= 1;
-if (mouse_wheel_up() || mouse_wheel_down()) mineProgress = 0;	//reset mine progress
+if (!inventoryMenu)
+{
+	if (mouse_wheel_down()) selectedPosition += 1;
+	if (mouse_wheel_up()) selectedPosition -= 1;
+	if (mouse_wheel_up() || mouse_wheel_down()) mineProgress = 0;	//reset mine progress
+}
 
 //Update Selected Slot
 selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
@@ -109,9 +112,17 @@ if (inventoryMenu)
 			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, _itemSize, scale);	//draw the held slot
 	}
 	
+	//Scroll Through the Crafting Products
+	if (mouse_wheel_up())
+		craftingProductsPosition += 1;
+	if (mouse_wheel_down())
+		craftingProductsPosition -= 1;
+	craftingProductsPosition = clamp(craftingProductsPosition, 0, 
+							   clamp(ceil(ds_list_size(craftingProducts) / 2) - craftingProductsLength, 0, infinity));
 	
 	
-	draw_line_width_colour(_guiWidth * 0.5, 0, _guiWidth * 0.5, _guiHeight, 1, c_blue, c_blue);
+	
+	draw_line_width_colour(_guiWidth * 0.5, 0, _guiWidth * 0.5, _guiHeight, 1, c_blue, c_blue);	//draw some lines for testing
 	draw_line_width_colour(0, _guiHeight * 0.5, _guiWidth, _guiHeight * 0.5, 1, c_red, c_red);
 }
 
