@@ -21,6 +21,7 @@
     {"id":{"name":"scr_WorldGeneration","path":"scripts/scr_WorldGeneration/scr_WorldGeneration.yy",},"order":13,},
     {"id":{"name":"spr_ItemMask","path":"sprites/spr_ItemMask/spr_ItemMask.yy",},"order":1,},
     {"id":{"name":"scr_Collision","path":"scripts/scr_Collision/scr_Collision.yy",},"order":8,},
+    {"id":{"name":"scr_Conversion","path":"scripts/scr_Conversion/scr_Conversion.yy",},"order":17,},
     {"id":{"name":"spr_Test2","path":"sprites/spr_Test2/spr_Test2.yy",},"order":10,},
     {"id":{"name":"scr_Noise","path":"scripts/scr_Noise/scr_Noise.yy",},"order":9,},
     {"id":{"name":"spr_Air","path":"sprites/spr_Air/spr_Air.yy",},"order":0,},

@@ -65,19 +65,19 @@ if (menuState != noone)
 			
 			if (file_exists(gameFile))
 			{
-				//Set the worldFileList
-				if (gameFileMap == noone)
+				//Set the worldFileArray
+				if (gameFileStruct == noone)
 				{
-					gameFileMap = json_decode(json_string_load(gameFile));
-					worldFileList = gameFileMap[? "worldFileList"];
+					gameFileStruct = json_parse(json_string_load(gameFile));
+					worldFileArray = gameFileStruct.worldFileArray;
 				}
 				
 				//Draw the World Selection
-				for (var _i = 0; _i < ds_list_size(worldFileList); _i ++)
+				for (var _i = 0; _i < array_length(worldFileArray); _i ++)
 				{
 					//Draw the World Buttons
 					if (button(_originX1, _originY + _buttonSpacingY * _i, _originX1 + _buttonWidth,
-							   _originY + _buttonSpacingY * _i + _buttonHeight, worldFileList[| _i], true))
+							   _originY + _buttonSpacingY * _i + _buttonHeight, worldFileArray[_i], true))
 					{
 						//Select a World
 						selectedWorldFile = _i;
@@ -97,7 +97,7 @@ if (menuState != noone)
 							   _originY + _buttonSpacingY * 0 + _buttonHeight, "Load the World", _worldIsSelected))
 				{
 					//Load the World
-					var _worldFile = worldFileList[| selectedWorldFile];
+					var _worldFile = worldFileArray[selectedWorldFile];
 					with (obj_GameManager)
 					{
 						worldFile = _worldFile;
@@ -116,13 +116,13 @@ if (menuState != noone)
 							   _originY + _buttonSpacingY * 1 + _buttonHeight, "Delete the World", _worldIsSelected))
 				{
 					//Delete the World File
-					var _worldFile = worldFileList[| selectedWorldFile];
+					var _worldFile = worldFileArray[selectedWorldFile];
 					file_delete(_worldFile);
-					ds_list_delete(worldFileList, selectedWorldFile);
+					array_delete(worldFileArray, selectedWorldFile, 1);
 					
 					//Update the gameFile
-					ds_map_add_list(gameFileMap, "worldFileList", worldFileList);
-					var _saveString = json_encode(gameFileMap);
+					gameFileStruct.worldFileArray = worldFileArray;
+					var _saveString = json_stringify(gameFileStruct);
 					json_string_save(_saveString, gameFile);
 					
 					selectedWorldFile = noone;
@@ -133,7 +133,7 @@ if (menuState != noone)
 						   _originY + _buttonSpacingY * 2 + _buttonHeight, "Create New World", true))
 				{
 					//Create a Name for the New World
-					var _worldName = "worldsave" + string(ds_list_size(worldFileList));
+					var _worldName = "worldsave" + string(array_length(worldFileArray));
 					while (file_exists(_worldName + ".sav"))
 					{
 						_worldName += "_";

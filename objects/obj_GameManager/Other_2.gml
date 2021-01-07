@@ -4,15 +4,17 @@ randomize();
 //Create a Game File if There Ins't One Already
 if (!file_exists("gamesave.sav"))
 {
-	//Create a List Storing World Save Files
-	var _worldFileList = ds_list_create();
+	//Create an Array Storing World Save Files
+	var _worldFileArray = array_create(0);
 	
-	//Add the Game Data to the Main Map
-	var _gameFileMap = ds_map_create();
-	ds_map_add_list(_gameFileMap, "worldFileList", _worldFileList);
+	//Add the Game Data to the Main Struct
+	var _gameFileStruct =
+	{
+		worldFileArray : _worldFileArray
+	};
 	
 	//Save the Main Map as a JSON String
-	var _saveString = json_encode(_gameFileMap);
+	var _saveString = json_stringify(_gameFileStruct);
 	json_string_save(_saveString, "gamesave.sav");
 }
 
