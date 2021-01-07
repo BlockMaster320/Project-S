@@ -5,8 +5,8 @@ menuStateStack = ds_stack_create();
 
 //Set World File Variables
 gameFile = "gamesave.sav";
-gameFileMap = noone;
-worldFileList = noone;
+gameFileStruct = noone;
+worldFileArray = noone;
 selectedWorldFile = noone;	//number of the selected file in the worldFileList
 
 //Text Fields

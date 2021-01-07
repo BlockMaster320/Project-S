@@ -18,7 +18,13 @@ delayedJumpTimer = 0;	//time from the last jump key press
 //Collision
 touchingBlock[3] = false;	//wheter the object is touching a block from: 0 - left; 1 - top; 2 - right; 3 - bottom
 							//the object has to be moving to the block (standing next to a block with speed of 0 isn't touching)
+//Inventory References
+playerInventoryGrid = obj_Inventory.inventoryGrid;
+playerArmorGrid = obj_Inventory.armorGrid;
+playerToolGrid = obj_Inventory.toolGrid;
+
 //Networking
+playerId = 0;
 objectId = - 1;
 serverSide = noone;
 clientSocket = - 1;
