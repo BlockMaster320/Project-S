@@ -25,13 +25,17 @@ if (inventoryWheel)
 	var _itemSize = ITEM_SIZE * _scale;
 	
 	//Draw the Inventory Wheel
-	draw_sprite_ext(spr_SlotFrame, 0, wheelCenterX - _scale * 50 - (22 * _scale) * 0.5,
-					wheelCenterY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
+	var _wheelCenterX = wheelCenterX * _guiWidth;
+	var _wheelCenterY = wheelCenterY * _guiHeight;
+	
+	draw_sprite_ext(spr_SlotFrame, 0, _wheelCenterX - _scale * 50 - (22 * _scale) * 0.5,
+					_wheelCenterY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
+	
 	for (var _i = 0; _i < wheelSlots; _i ++)
 	{
 		var _angle = 90 + (180 / (wheelSlots - 1)) * _i;	//get draw x && y
-		var _drawX = wheelCenterX + lengthdir_x(_scale * 50, _angle) - _itemSize * 0.5;
-		var _drawY = wheelCenterY + lengthdir_y(_scale * 50, _angle) - _itemSize * 0.5;
+		var _drawX = _wheelCenterX + lengthdir_x(_scale * 50, _angle) - _itemSize * 0.5;
+		var _drawY = _wheelCenterY + lengthdir_y(_scale * 50, _angle) - _itemSize * 0.5;
 		
 		/*draw_circle_colour(wheelCenterX + lengthdir_x(_scale * 50, _angle),
 						   wheelCenterY + lengthdir_y(_scale * 50, _angle), 1, c_red, c_red, false);*/

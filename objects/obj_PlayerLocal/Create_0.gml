@@ -19,13 +19,15 @@ delayedJumpTimer = 0;	//time from the last jump key press
 touchingBlock[3] = false;	//wheter the object is touching a block from: 0 - left; 1 - top; 2 - right; 3 - bottom
 							//the object has to be moving to the block (standing next to a block with speed of 0 isn't touching)
 //Inventory References
+playerSelectedPosition = 0;
 playerInventoryGrid = obj_Inventory.inventoryGrid;
 playerArmorGrid = obj_Inventory.armorGrid;
 playerToolGrid = obj_Inventory.toolGrid;
 
 //Networking
-playerId = 0;
-objectId = - 1;
-serverSide = noone;
-clientSocket = - 1;
-alarm[0] = MOVE_UPDATE;	//update the player's position
+clientId = obj_GameManager.clientId;
+clientName = obj_Menu.textFieldArray[0];
+objectId = noone;
+serverSide = obj_GameManager.serverSide;
+clientSocket = noone;
+alarm[0] = POSITION_UPDATE;	//update the player's position

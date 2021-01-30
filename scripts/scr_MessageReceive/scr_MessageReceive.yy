@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Scripts",
-    "path": "folders/Scripts.yy",
+    "name": "Networking",
+    "path": "folders/Scripts/Networking.yy",
   },
   "resourceVersion": "1.0",
-  "name": "scr_NetworkMessage",
+  "name": "scr_MessageReceive",
   "tags": [],
   "resourceType": "GMScript",
 }

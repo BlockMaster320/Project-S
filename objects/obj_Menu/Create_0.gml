@@ -10,11 +10,14 @@ worldFileArray = noone;
 selectedWorldFile = noone;	//number of the selected file in the worldFileList
 
 //Text Fields
-charSet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_/&-";
+charSet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_-/.,&0123456789";
 textField = noone;
-textFieldArray[9] = "ok";
-for (var _i = 0; _i < array_length(textFieldArray); _i ++)	//fill the textFileArray with empty strings
-	textFieldArray[_i] = "";
+textFieldArray = array_create(9, "");
+textFieldPassiveArray = array_create(9, "");	//stores part of the string that's shown when the text field isn't activated
+/*for (var _i = 0; _i < array_length(textFieldArray); _i ++)	//fill the textFileArray with empty strings
+	textFieldArray[_i] = "";*/
 textCursorPosition = 0;
 textEdgeLeft = 0;	//counting from 0
 textEdgeRight = 99;	//counting from 0; just some random larger number
+textCursorIsVisible = true;
+alarm[0] = CURSOR_BLINK_SPEED;	//alarm that makes the textCursor blink
