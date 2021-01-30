@@ -417,7 +417,7 @@ function crafting_update_products(_craftingGrid)
 			}
 		}
 		
-		//Add the Item to the prductList
+		//Add the Item to the productList
 		if (_timesCanBeCrafted != 0)
 		{
 			var _productItemCount = _timesCanBeCrafted * _item.craftAmount;

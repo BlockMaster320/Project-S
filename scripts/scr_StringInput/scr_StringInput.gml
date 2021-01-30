@@ -34,6 +34,10 @@ function string_input(_string, _charSet)
 			}
 			break;
 		}
+		
+		//Reset the Text Cursor Blink
+		textCursorIsVisible = true;
+		alarm[0] = CURSOR_BLINK_SPEED;
 	}
 	return _string;
 }

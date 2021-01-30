@@ -139,6 +139,11 @@ if (menuState != noone)
 						_worldName += "_";
 					}
 					world_create(_worldName);
+					
+					//Close the Main Menu
+					ds_stack_clear(menuStateStack);
+					menuState = noone;
+					inGame = true;
 				}
 			}
 		}
@@ -150,8 +155,15 @@ if (menuState != noone)
 			draw_set_valign(fa_top);
 			draw_text_transformed_colour(_drawCenter, 20, "MULTIPLAYER", 1, 1, 0, c_white, c_white, c_white, c_white, 1);
 			
-			button_redirect(_drawCenter, _guiHeight * 0.3, _drawCenter + _buttonWidth,
-							_guiHeight * 0.3 + _buttonHeight, "deep", true, menu.test1);
+			//Server IP Text Field
+			text_field(_originX1, _originY, _originX1 + _buttonWidth, _originY + _buttonHeight, true, 1);
+			
+			//Join Server Button
+			if (button(_originX2, _originY, _originX2 + _buttonWidth,
+					   _originY + _buttonHeight, "Join the Server" ,true))
+			{
+				instance_create_layer(0, 0, "GameManagers", obj_Client);
+			}
 		}
 		break;
 	
@@ -169,19 +181,36 @@ if (menuState != noone)
 			if (button(_originX1, _originY + _buttonSpacingY * 3, _originX1 + _buttonWidth,
 					   _originY + _buttonSpacingY * 3 + _buttonHeight, "MAIN MENU", true))
 			{
-				//Save && Clear the World
-				with (obj_GameManager)
+				//Save && Close the World
+				if (obj_GameManager.serverSide != false)
 				{
-					world_save(worldFile);
-					world_clear();
-					worldFile = noone;
+					//Save the Game && Quit to Main Menu
+					world_save_close();
 				}
-				instance_deactivate_layer("WorldManagers");
 				
-				//Close the In-Game Menu
-				ds_stack_clear(menuStateStack);
-				menuState = noone;
-				inGame = false;
+				//Disconnect the Client from the Server
+				else
+				{
+					//Convert the Inventory Grids to Strings
+					var _selectedPosition = obj_Inventory.selectedPosition;
+					var _inventoryString = json_stringify(slot_grid_to_array(obj_Inventory.inventoryGrid));
+					var _armorString = json_stringify(slot_grid_to_array(obj_Inventory.armorGrid));
+					var _toolString = json_stringify(slot_grid_to_array(obj_Inventory.toolGrid));
+			
+					//Send the Inventory Grids to the Server
+					var _clientBuffer = obj_Client.clientBuffer;
+					var _clientSocket = obj_Client.client;
+					message_inventoryData(_clientBuffer, _selectedPosition, _inventoryString,
+											_armorString, _toolString);
+					network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
+					
+					buffer_seek(_clientBuffer, buffer_seek_start, 0);
+					buffer_write(_clientBuffer, buffer_u8, messages.clientDisconnect);
+					network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
+					
+					//Quit to Main Menu
+					world_close();
+				}
 			}
 		}
 		break;
@@ -221,7 +250,7 @@ if (menuState != noone)
 
 /*
 var testString = "randstring";
-show_debug_message(string_copy(testString, 0, 5));
+show_debug_message(string_copy(testString, 0, 9));
 show_debug_message(string_insert("1", testString, 1));
 show_debug_message(string_delete(testString, 1, 1));
 show_debug_message("\n");*/

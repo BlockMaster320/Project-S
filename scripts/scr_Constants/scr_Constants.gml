@@ -14,12 +14,26 @@ enum menu
 //Networking
 enum messages
 {
-	join,
-	leave,
-	createPlayer,
-	createBlock,
+	worldData,
+	clientData,
+	clientDisconnect,
+	inventoryData,
+	playerCreate,
+	
+	itemCreate,
+	itemChange,
+	itemCollect,
+	itemGive,
+	
+	blockCreate,
+	blockDestroy,
+	
 	destroy,
-	move
+	position
 }
 
-#macro MOVE_UPDATE 3
+#macro POSITION_UPDATE 3
+
+#macro SAVE_TIME 30
+
+#macro CURSOR_BLINK_SPEED 35

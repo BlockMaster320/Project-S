@@ -51,3 +51,13 @@ function gravity()
 {
 	verticalSpeed += gravityAccel;	//gravity
 }
+
+/// Function for linearly interpolating between 2 position.
+/// modyfing varaibles: x, y
+/// variables needed: xOrigin, yOrigin, xTarget, yTarget, moveTime
+
+function interpolate(_xOrigin, _yOrigin, _xTarget, _yTarget, _moveTime)
+{
+	x = lerp(_xOrigin, _xTarget, _moveTime / POSITION_UPDATE);
+	y = lerp(_yOrigin, _yTarget, _moveTime / POSITION_UPDATE);
+}

@@ -4,19 +4,34 @@ if (server < 0) show_message("Failed to create a server.");
 
 //Create a Server Buffer
 serverBuffer = buffer_create(256, buffer_grow, 1);
+/*serverBufferWorld = buffer_create(131071, buffer_grow, 1);*/
 
-//Create a Player Map
+//Create a Map of Players && Objects
 playerMap = ds_map_create();
+objectMap = ds_map_create();
 
 //Set an Object Count
 objectIdCount = 0;
 
 //Give Every Game Instance a Unique ID
 with (obj_PlayerLocal)
-	objectId = other.objectIdCount ++;
-/*with (obj_Block)
-	objectId = other.objectIdCount ++;*/
+{
+	var _objectId = other.objectIdCount ++;
+	objectId = _objectId;
+	other.objectMap[? _objectId] = self;
+}
+	
+with (obj_Item)
+{
+	var _objectId = other.objectIdCount ++;
+	objectId = _objectId
+	other.objectMap[? _objectId] = self;
+	alarm[0] = POSITION_UPDATE;
+}
 
-//Set Wheter the Local Player is on the Server Side to True
-if (instance_exists(obj_PlayerLocal))
-	obj_PlayerLocal.serverSide = true;
+//Set Networking to True
+obj_GameManager.networking = true;
+
+//Set Wheter the Player is on the Server Side to True
+obj_GameManager.serverSide = true;
+obj_PlayerLocal.serverSide = true;

@@ -1,5 +1,5 @@
 //Game Saving && Loading
-if (keyboard_check_pressed(ord("S")))
+if (keyboard_check_pressed(ord("S")) && obj_Menu.inGame)
 	world_save(worldFile);
 
 
@@ -7,7 +7,7 @@ if (keyboard_check_pressed(ord("S")))
 if (keyboard_check_pressed(ord("R")))	//restart the game
 	game_restart();
 
-if (keyboard_check_pressed(ord("F")))	//code speed testing
+if (/*keyboard_check_pressed(ord("F"))*/false)	//code speed testing
 {
 	var _timeSum = 0;
 	var _timeTestNumber = 1;
@@ -30,3 +30,9 @@ if (keyboard_check_pressed(ord("F")))	//code speed testing
 	show_debug_message(string(_timeAverage) + "ms");
 	//show_debug_message(string(_testArray));
 }
+
+/*
+var _guiWidth = display_get_gui_width(); 
+var _guiHeight = display_get_gui_width();
+show_debug_message("guiWidth: " + string(_guiWidth));
+show_debug_message("guiHeight: " + string(_guiHeight));*/

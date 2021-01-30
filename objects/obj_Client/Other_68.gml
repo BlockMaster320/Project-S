@@ -1,8 +1,9 @@
-var _type = async_load[? "type"];
+//Get Network Message Properties
 var _id = async_load[? "id"];
 
+//Handle Network Message
 if (_id == client)
 {
 	var _buffer = async_load[? "buffer"];
-	client_receive_message(_id, _buffer);
+	message_receive_client(_id, _buffer);
 }

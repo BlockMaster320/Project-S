@@ -165,6 +165,10 @@ function check_collision(_object)
 
 function check_block_collision(_object, _colliderId, _colliderGridX, _colliderGridY)
 {
+	//Check If the Object Exists
+	if (!instance_exists(obj_PlayerClient))
+		return;
+	
 	//Get Object's Variables
 	var _x = _object.x;	//get object's position && speed
 	var _y = _object.y;
