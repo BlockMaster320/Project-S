@@ -1,6 +1,7 @@
 //Apply Gravity && Collision
 if (!collectItem)
 {
+	movement(false, false);
 	gravity();
 	collision();
 }

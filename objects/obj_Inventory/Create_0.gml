@@ -1,15 +1,13 @@
 //Inventory Menu
 inventoryMenu = false;
-scale = 3;
-#macro SLOT_SIZE 22
-#macro ITEM_SIZE 16
+scale = 2.5;
 
 mouseX = 0;
 mouseY = 0;
 
 //Player Sections
-inventoryWidth = 3;	//set invenory grid
-inventoryHeight = 2;
+inventoryWidth = 7;	//set invenory grid
+inventoryHeight = 4;
 inventoryGrid = ds_grid_create(inventoryWidth, inventoryHeight);
 
 armorWidth = 1;	//set armor grid
@@ -38,20 +36,19 @@ heldSlotItemCount = 0;
 swapSlots = false;	//variable preventing swapping the held slot on the first button release
 splitList = ds_list_create();
 
-//Crafting Sections
-craftingLevel = 1;
-craftingGrid = ds_grid_create(craftingLevel, 2);
+//Crafting Section
+craftingLevel = 0;
+craftingGrid = ds_grid_create(craftingLevel + 1, 2);
 craftingProducts = ds_list_create();
-craftingProductsLength = 2;	//the number of columns of crafting products slots will be drawn
+craftingProductsLength = 2;	//the number of columns of crafting product slots that will be drawn
 craftingProductsPosition = 0;	//number of the collumn from which to draw the crafting products
 //craftingProducts[| 6] = 0
 
 //Stations Section
 stationList = ds_list_create();
-station1Pointer = 0;
-station2Pointer = 0;
-station1 = 0;
-station2 = 0;
+searchForStations = false;
+stationSelectedArray = [0, 0];
+stationPreferredSide = 0;
 
 //Inventory Wheel
 inventoryWheel = true;
@@ -74,8 +71,15 @@ inRange = false;
 mineProgress = 0;
 mineBlockEndurance = 0;
 
-enum station
+/*
+var _testStruct1 =
 {
-	chestSmall,
-	chestLarge
-}
+	textVar : 5
+};
+
+var _testStruct2 =
+{
+	textVar : 5
+};
+ds_list_add(stationList, _testStruct1);
+show_debug_message(string(ds_list_find_index(stationList, _testStruct2)));*/

@@ -216,6 +216,27 @@ function message_receive_server(_socket, _buffer)
 		}
 		break;
 		
+		case messages.slotChange:	//udpate a specific slot of a station
+		{
+			//Get the Slot Data
+			var _worldGridX = buffer_read(_buffer, buffer_u16);
+			var _worldGridY = buffer_read(_buffer, buffer_u16);
+			var _i = buffer_read(_buffer, buffer_u8);
+			var _j = buffer_read(_buffer, buffer_u8);
+			var _slot = json_parse(buffer_read(_buffer, buffer_string));
+			
+			//Change the Local Slot to the Updated One
+			station_slot_change(_worldGridX, _worldGridY, _i, _j, _slot);
+			
+			//Send Message to Update the Slot to All Other Clients
+			with (obj_PlayerClient)
+			{
+				if (_socket != clientSocket)
+					network_send_packet(clientSocket, _buffer, buffer_tell(_buffer));
+			}
+		}
+		break;
+		
 		case messages.itemCreate:	//create an Item dropped by a client
 		{
 			//Get the Items's Data
@@ -435,7 +456,6 @@ function message_receive_client(_socket, _buffer)
 		
 		case messages.clientDisconnect:	//disconnect the client from the server
 		{
-			show_debug_message("yeaazz");
 			//Quit to Main Menu
 			world_close();
 		}
@@ -495,8 +515,37 @@ function message_receive_client(_socket, _buffer)
 			var _blockGridX = buffer_read(_buffer, buffer_u16);
 			var _blockGridY = buffer_read(_buffer, buffer_u16);
 			
+			//Update the Station List
+			var _block = obj_WorldManager.worldGrid[# _blockGridX, _blockGridY];
+			var _blockItem = id_get_item(_block.id);
+			if (_blockItem.category = itemCategory.station)
+				obj_Inventory.searchForStations = true;
+			
 			//Destroy the Block
 			obj_WorldManager.worldGrid[# _blockGridX, _blockGridY] = 0;
+		}
+		break;
+		
+		case messages.slotChange:	//udpate a specific slot of a station
+		{
+			//Get the Slot Data
+			var _worldGridX = buffer_read(_buffer, buffer_u16);
+			var _worldGridY = buffer_read(_buffer, buffer_u16);
+			var _i = buffer_read(_buffer, buffer_u8);
+			var _j = buffer_read(_buffer, buffer_u8);
+			var _slot = json_parse(buffer_read(_buffer, buffer_string));
+			
+			//Change the Local Slot to the Updated One
+			station_slot_change(_worldGridX, _worldGridY, _i, _j, _slot);
+			
+			//Set the Local Slot to the Udpated One
+			var _station = obj_WorldManager.worldGrid[# _worldGridX, _worldGridY];
+			var _stationItem = id_get_item(_station.id);
+			var _slotPosition = _j * _stationItem.storageWidth + _i;
+			
+			_station.storageArray[_slotPosition] = _slot;
+			if (variable_struct_exists(_station, "storageGrid"))
+				position_slot_set(_station.storageGrid, _slotPosition, _slot);
 		}
 		break;
 		

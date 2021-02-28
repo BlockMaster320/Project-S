@@ -73,6 +73,17 @@ function message_block_destroy(_buffer, _gridX, _gridY)
 	buffer_write(_buffer, buffer_u16, _gridY);
 }
 
+function message_slot_change(_buffer, _gridX, _gridY, _i, _j, _slot)
+{
+	buffer_seek(_buffer, buffer_seek_start, 0);
+	buffer_write(_buffer, buffer_u8, messages.slotChange);
+	buffer_write(_buffer, buffer_u16, _gridX);
+	buffer_write(_buffer, buffer_u16, _gridY);
+	buffer_write(_buffer, buffer_u8, _i);
+	buffer_write(_buffer, buffer_u8, _j);
+	buffer_write(_buffer, buffer_string, json_stringify(_slot));
+}
+
 function message_destroy(_buffer, _objectId)
 {
 	buffer_seek(_buffer, buffer_seek_start, 0);

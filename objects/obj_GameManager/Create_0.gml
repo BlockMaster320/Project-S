@@ -9,4 +9,4 @@ networking = false;
 clientId = noone;
 serverSide = noone;
 
-/*open_two_windows();*/	//run 2 instances of the game (for networking testing)
+open_two_windows();	//run 2 instances of the game (for networking testing)

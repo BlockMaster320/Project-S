@@ -1,4 +1,4 @@
-/// Function checking for key input to update a given string.
+ /// Function checking for key input to update a given string.
 /// variables needed: textCursorPosition
 
 function string_input(_string, _charSet)
@@ -33,6 +33,16 @@ function string_input(_string, _charSet)
 				textCursorPosition --;
 			}
 			break;
+			
+			case ord("V"):	//paste clipboard text
+			{
+				if (keyboard_check(vk_control))
+				{
+					var _clipboardString = clipboard_get_text();
+					_string = string_insert(_clipboardString, _string, textCursorPosition + 1);
+					textCursorPosition += string_length(_clipboardString);
+				}
+			}
 		}
 		
 		//Reset the Text Cursor Blink

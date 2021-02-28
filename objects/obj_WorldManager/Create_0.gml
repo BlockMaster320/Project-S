@@ -11,7 +11,6 @@ seaLevel = 10;	//sea surface level from the world's top
 //World Grid
 worldGrid = ds_grid_create(0, 0);
 drawTimer = 0;
-#macro CELL_SIZE 16
 
 //Create a Vertex Buffer for Drawing the World
 vertex_format_begin();
