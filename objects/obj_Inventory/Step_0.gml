@@ -9,7 +9,7 @@ if (instance_exists(obj_PlayerLocal))
 	_playerX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
 	_playerY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
 }
-
+show_debug_message(ds_list_size(heldSlotItemCount));
 //ITEM INTERACTION//
 //Item Collection
 var _itemObject = (obj_GameManager.serverSide != false) ? obj_Item : obj_ItemClient;
@@ -99,45 +99,11 @@ var _selectedSlot = selectedSlot;
 if (keyItemDrop && _selectedSlot != 0)
 {
 	//Set Item's Drop Position
-	var _itemDropX = _playerX - sprite_get_width(spr_ItemMask) * 0.5;
-	var _itemDropY = _playerY - sprite_get_height(spr_ItemMask) * 0.5;
+	var _dropX = _playerX - sprite_get_width(spr_ItemMask) * 0.5;
+	var _dropY = _playerY - sprite_get_height(spr_ItemMask) * 0.5;
 	
-	//Drop the Item && Send a Message to All Clients
-	if (obj_GameManager.serverSide != false)
-	{
-		//Send Message to All the Clients Directly
-		var _objectId = noone;
-		if (obj_GameManager.networking)
-		{
-			_objectId = obj_Server.objectIdCount ++;	//send a message to create an Item
-			var _serverBuffer = obj_Server.serverBuffer;
-			message_item_create(_serverBuffer, _objectId, _itemDropX, _itemDropY,
-								_selectedSlot.id, _selectedSlot.itemCount, 60);
-			with (obj_PlayerClient)
-				network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
-		}
-		
-		//Create a Local Item
-		var _droppedItem = instance_create_layer(_itemDropX, _itemDropY, "Items", obj_Item);
-		with (_droppedItem)	//set properties of the dropped item
-		{
-			collectCooldown = 60;
-			itemSlot = new Slot(_selectedSlot.id, _selectedSlot.itemCount);
-			objectId = _objectId;
-		}
-		if (obj_GameManager.networking)
-			obj_Server.objectMap[? _objectId] = _droppedItem;
-	}
-	
-	//Send Message to the Server
-	else
-	{
-		var _clientBuffer = obj_Client.clientBuffer;
-		var _clientSocket = obj_Client.client;
-		message_item_create(_clientBuffer, noone, _itemDropX, _itemDropY,
-							_selectedSlot.id, _selectedSlot.itemCount, 60);
-		network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
-	}
+	//Drop the Item
+	slot_drop(selectedSlot.id, selectedSlot.itemCount, _dropX, _dropY, 60, true);
 	
 	//Clear the Item's Slot
 	position_slot_set(inventoryGrid, selectedPosition, 0);
@@ -149,7 +115,7 @@ var _blockGridX = mouse_x div CELL_SIZE;
 var _blockGridY = mouse_y div CELL_SIZE;
 var _selectedBlock = obj_WorldManager.worldGrid[# _blockGridX, _blockGridY];
 
-//Get Block's Position && Center Position
+//Get Block's Center Position
 var _blockCenterX = _blockGridX * CELL_SIZE + CELL_SIZE * 0.5;		
 var _blockCenterY = _blockGridY * CELL_SIZE + CELL_SIZE * 0.5;
 inRange = (point_distance(_playerX, _playerY, _blockCenterX, _blockCenterY) <= interactionRange);
@@ -164,55 +130,8 @@ if (buttonLeft && inRange && _selectedBlock != 0)
 	//Mine the Block
 	if (mineProgress >= mineBlockEndurance)	//mine the block
 	{
-		//Delete the Block From the World Grid && Send a Message to All Clients
-		if (obj_GameManager.serverSide != false)	//destroy the local block if serverSide is true || noone (not client side)
-		{
-			//Set the Dropped Item's Position
-			var _itemDropX = _blockCenterX - sprite_get_width(spr_ItemMask) * 0.5;
-			var _itemDropY = _blockCenterY - sprite_get_height(spr_ItemMask) * 0.5;
-			
-			//Send Message to All the Clients Directly
-			var _objectId = noone;
-			if (obj_GameManager.networking)
-			{
-				var _objectId = obj_Server.objectIdCount ++;	//create a new object ID for the Item
-				
-				var _serverBuffer = obj_Server.serverBuffer;	//send a message to destroy the block
-				message_block_destroy(_serverBuffer, _blockGridX, _blockGridY);
-				with (obj_PlayerClient)
-					network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
-				
-				message_item_create(_serverBuffer, _objectId, _itemDropX, _itemDropY, _selectedBlock.id, 1, 0);	//send a message to create an Item object
-				with (obj_PlayerClient)
-					network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
-			}
-			
-			//Destroy the Local Block
-			obj_WorldManager.worldGrid[# _blockGridX, _blockGridY] = 0;
-			
-			//Drop the Block's Item
-			var _droppedItem = instance_create_layer(_itemDropX, _itemDropY, "Items", obj_Item);
-			with (_droppedItem)
-			{
-				itemSlot = new Slot(_selectedBlock.id, 1);
-				stackCooldown = 10;
-				objectId = _objectId;
-				/*if (obj_GameManager.networking)
-					alarm[0] = POSITION_UPDATE;*/
-			}
-			if (obj_GameManager.networking)
-				obj_Server.objectMap[? _objectId] = _droppedItem;
-		}
-		
-		//Send a Message to the Server
-		else
-		{
-			var _clientBuffer = obj_Client.clientBuffer;	//send message to destroy the block
-			var _clientSocket = obj_Client.client;
-			
-			message_block_destroy(_clientBuffer, _blockGridX, _blockGridY);
-			network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
-		}
+		//Destroy the Block
+		block_destroy(_blockGridX, _blockGridY);
 		
 		//Reset mineProgress
 		mineProgress = 0;

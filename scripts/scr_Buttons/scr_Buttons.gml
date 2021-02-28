@@ -18,7 +18,7 @@ function button(_x1, _y1, _x2, _y2, _text, _isAbled)
 				_returnValue = true;
 		}
 		else
-			draw_rectangle_colour(_x1, _y1, _x2, _y2, c_dkgray, c_dkgray, c_dkgray, c_dkgray, false);	//draw normal button
+			draw_rectangle_colour(_x1, _y1, _x2, _y2, c_dkgray, c_dkgray, c_dkgray, c_dkgray, false);	//draw not selected button
 	}
 	else
 	{
@@ -69,6 +69,53 @@ function button_highlight(_x1, _y1, _x2, _y2)
 	draw_set_alpha(0.3);
 	draw_rectangle_colour(_x1, _y1, _x2, _y2, c_white, c_white, c_white, c_white, false);
 	draw_set_alpha(1);
+}
+
+function arrow_button(_x, _y, _direction, _isAbled, _scale)
+{
+	//Set Return Value
+	var _returnValue = false;
+	
+	//Set Position of the Rectangle Representing Arrow's Hitbox
+	var _arrowWidth = sprite_get_width(spr_Arrow);
+	var _arrowHeight = sprite_get_height(spr_Arrow);
+	var _rectangleX1 = _x + lengthdir_x(_arrowWidth * _scale * 0.5, _direction + 90);
+	var _rectangleY1 = _y + lengthdir_y(_arrowHeight * _scale * 0.5, _direction + 90);
+	var _rectangleX2 =_x - lengthdir_x(_arrowWidth * _scale * 0.5, _direction + 90) + 
+					  lengthdir_x(_arrowWidth * _scale, _direction);
+	var _rectangleY2 = _y - lengthdir_y(_arrowHeight * _scale * 0.5, _direction + 90) -
+					lengthdir_y(_arrowHeight * _scale, _direction);
+	
+	var _scaleX = (_direction == 0 || _direction == 90) ? 1 : - 1;
+	var _drawDirection = (_direction == 90 || _direction == 270) ? 270 : 0;
+	
+	//Check Wheter the Arrow is Clickable
+	if (_isAbled)
+	{
+		//Get Cursor's Position
+		var _mouseWindowX = window_mouse_get_x();
+		var _mouseWindowY = window_mouse_get_y();
+		
+		//Order the Rectangle's Position Points So They Can Be Used For Collision Checking
+		var _rectangleLeftX = min(_rectangleX1, _rectangleX2);
+		var _rectangleTopY = min(_rectangleY1, _rectangleY2);
+		var _rectangleRightX = max(_rectangleX1, _rectangleX2);
+		var _rectangleBottomY = max(_rectangleY1, _rectangleY2);
+		
+		//Check Wheter the Button is Selected
+		if (point_in_rectangle(_mouseWindowX, _mouseWindowY, _rectangleLeftX, _rectangleTopY, _rectangleRightX, _rectangleBottomY))
+		{
+			draw_sprite_ext(spr_Arrow, 1, _x, _y, _scaleX * _scale, _scale, _drawDirection, c_white, 1)	//draw selected arrow
+			if (mouse_check_button_pressed(mb_left))
+				_returnValue = true;
+		}
+		else
+			draw_sprite_ext(spr_Arrow, 0, _x, _y, _scaleX * _scale, _scale, _drawDirection, c_white, 1)	//draw not selected arrow
+	}
+	else
+		draw_sprite_ext(spr_Arrow, 0, _x, _y, _scaleX * _scale, _scale, _drawDirection, c_grey, 1)	//draw not abled arrow
+	
+	return _returnValue;
 }
 
 /// Function for drawing && interacting with a text field.

@@ -18,6 +18,8 @@ function collision()
 		var _xRounded = (sign(horizontalSpeed == 1)) ? ceil(x) : floor(x);
 		var _collisionPoint = [(_xRounded + (sprite_width * 0.5) * (sign(horizontalSpeed) + 1)) div CELL_SIZE, (y + _spriteCellHeight * _i) div CELL_SIZE];
 		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		if (_collisionBlock == undefined)
+			return;
 	
 		//Check for Collision with the Block
 		if (_collisionBlock != 0)
@@ -62,6 +64,8 @@ function collision()
 		var _yRounded = (sign(verticalSpeed == 1)) ? ceil(y) : floor(y);
 		var _collisionPoint = [(x + _spriteCellWidth * _i) div CELL_SIZE, (_yRounded + (sprite_height * 0.5) * (sign(verticalSpeed) + 1)) div CELL_SIZE];
 		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		if (_collisionBlock == undefined)
+			return;
 	
 		//Check for Collision with the Block
 		if (_collisionBlock != 0)
@@ -119,6 +123,8 @@ function check_collision(_object)
 		var _xRounded = (sign(_horizontalSpeed == 1)) ? ceil(_x) : floor(_x);
 		var _collisionPoint = [(_xRounded + (_spriteWidth * 0.5) * (sign(_horizontalSpeed) + 1)) div CELL_SIZE, (_y + _spriteCellHeight * _i) div CELL_SIZE];
 		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		if (_collisionBlock == undefined)
+			return;
 	
 		//Check for Collision with the Block
 		if (_collisionBlock != 0)
@@ -143,6 +149,8 @@ function check_collision(_object)
 		var _yRounded = (sign(_verticalSpeed == 1)) ? ceil(_y) : floor(_y);
 		var _collisionPoint = [(_x + _spriteCellWidth * _i) div CELL_SIZE, (_yRounded + (_spriteHeight * 0.5) * (sign(_verticalSpeed) + 1)) div CELL_SIZE];
 		var _collisionBlock = obj_WorldManager.worldGrid[# _collisionPoint[0], _collisionPoint[1]];
+		if (_collisionBlock == undefined)
+			return;
 	
 		//Check for Collision with the Block
 		if (_collisionBlock != 0)
@@ -165,64 +173,63 @@ function check_collision(_object)
 
 function check_block_collision(_object, _colliderId, _colliderGridX, _colliderGridY)
 {
-	//Check If the Object Exists
-	if (!instance_exists(obj_PlayerClient))
-		return;
-	
-	//Get Object's Variables
-	var _x = _object.x;	//get object's position && speed
-	var _y = _object.y;
-	var _horizontalSpeed = _object.horizontalSpeed;
-	var _verticalSpeed = _object.horizontalSpeed;
-	
-	var _spriteWidth = _object.sprite_width;	//get object's size
-	var _spriteHeight = _object.sprite_height;
-	
-	//Horizontal Collision
-	var _verticalCells = ceil(_spriteHeight / CELL_SIZE);	//numbers of worldGrid cells the sprite occupies vertically
-	var _spriteCellHeight = _spriteHeight / _verticalCells;	//(based on that number of horizontal collision points is decided)
-
-	for (var _i = 0; _i < _verticalCells + 1; _i ++)	//iterate trought the horizontal corners && check for collision on their position
+	//Loop Through All Instances of the Given Object
+	with (_object)
 	{
-		//Get the Block Struct (or 0 - Air) from the Corner Position
-		var _xRounded = (sign(_horizontalSpeed == 1)) ? ceil(_x) : floor(_x);
-		var _collisionPoint = [(_xRounded + (_spriteWidth * 0.5) * (sign(_horizontalSpeed) + 1)) div CELL_SIZE, (_y + _spriteCellHeight * _i) div CELL_SIZE];
+		//Get Object's Variables
+		var _x = x;	//get object's position && speed
+		var _y = y;
+		var _horizontalSpeed = horizontalSpeed;
+		var _verticalSpeed = horizontalSpeed;
 	
-		//Check for Collision with the Block
-		if (_collisionPoint[0] == _colliderGridX && _collisionPoint[1] == _colliderGridY)
+		var _spriteWidth = sprite_width;	//get object's size
+		var _spriteHeight = sprite_height;
+	
+		//Horizontal Collision
+		var _verticalCells = ceil(_spriteHeight / CELL_SIZE);	//numbers of worldGrid cells the sprite occupies vertically
+		var _spriteCellHeight = _spriteHeight / _verticalCells;	//(based on that number of horizontal collision points is decided)
+
+		for (var _i = 0; _i < _verticalCells + 1; _i ++)	//iterate trought the horizontal corners && check for collision on their position
 		{
-			var _collisionMask = id_get_item(_colliderId).collisionMask;
-		
-			if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1],
-									_collisionPoint[0] * CELL_SIZE + _collisionMask[2], _collisionPoint[1] * CELL_SIZE + _collisionMask[3] - 1, _object, true, false))
+			//Get the Block Struct (or 0 - Air) from the Corner Position
+			var _xRounded = (sign(_horizontalSpeed == 1)) ? ceil(_x) : floor(_x);
+			var _collisionPoint = [(_xRounded + (_spriteWidth * 0.5) * (sign(_horizontalSpeed) + 1)) div CELL_SIZE, (_y + _spriteCellHeight * _i) div CELL_SIZE];
+	
+			//Check for Collision with the Block
+			if (_collisionPoint[0] == _colliderGridX && _collisionPoint[1] == _colliderGridY)
 			{
-				return true;
+				var _collisionMask = id_get_item(_colliderId).collisionMask;
+		
+				if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1],
+										_collisionPoint[0] * CELL_SIZE + _collisionMask[2], _collisionPoint[1] * CELL_SIZE + _collisionMask[3] - 1, self, true, false))
+				{
+					return true;
+				}
+			}
+		}
+	
+		//Vertical Collision
+		var _horizontalCells = ceil(_spriteWidth / CELL_SIZE);	//number of worldGrid cells the sprite occupies horizontally
+		var _spriteCellWidth = _spriteWidth / _horizontalCells;	//(based on that number of vertical collision points is decided)
+
+		for (var _i = 0; _i < _horizontalCells + 1; _i ++)	//iterate trought the horizontal corners && check for collision on their position
+		{
+			//Get the Block Struct (or 0 - Air) from the Corner Position
+			var _yRounded = (sign(_verticalSpeed == 1)) ? ceil(_y) : floor(_y);
+			var _collisionPoint = [(_x + _spriteCellWidth * _i) div CELL_SIZE, (_yRounded + (_spriteHeight * 0.5) * (sign(_verticalSpeed) + 1)) div CELL_SIZE];
+	
+			//Check for Collision with the Block
+			if (_collisionPoint[0] == _colliderGridX && _collisionPoint[1] == _colliderGridY)
+			{
+				var _collisionMask = id_get_item(_colliderId).collisionMask;
+		
+				if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1] - 1,	//in this check there is a slight difference from the collision() function to make the check more forgiving (- 1 pixel in the second argument was removed)
+										_collisionPoint[0] * CELL_SIZE + _collisionMask[2] - 1, _collisionPoint[1] * CELL_SIZE + _collisionMask[3], self, true, false))
+				{
+					return true;
+				}
 			}
 		}
 	}
-	
-	//Vertical Collision
-	var _horizontalCells = ceil(_spriteWidth / CELL_SIZE);	//number of worldGrid cells the sprite occupies horizontally
-	var _spriteCellWidth = _spriteWidth / _horizontalCells;	//(based on that number of vertical collision points is decided)
-
-	for (var _i = 0; _i < _horizontalCells + 1; _i ++)	//iterate trought the horizontal corners && check for collision on their position
-	{
-		//Get the Block Struct (or 0 - Air) from the Corner Position
-		var _yRounded = (sign(_verticalSpeed == 1)) ? ceil(_y) : floor(_y);
-		var _collisionPoint = [(_x + _spriteCellWidth * _i) div CELL_SIZE, (_yRounded + (_spriteHeight * 0.5) * (sign(_verticalSpeed) + 1)) div CELL_SIZE];
-	
-		//Check for Collision with the Block
-		if (_collisionPoint[0] == _colliderGridX && _collisionPoint[1] == _colliderGridY)
-		{
-			var _collisionMask = id_get_item(_colliderId).collisionMask;
-		
-			if (collision_rectangle(_collisionPoint[0] * CELL_SIZE + _collisionMask[0], _collisionPoint[1] * CELL_SIZE + _collisionMask[1] - 1,	//in this check there is a slight difference from the collision() function to make the check more forgiving (- 1 pixel in the second argument was removed)
-									_collisionPoint[0] * CELL_SIZE + _collisionMask[2] - 1, _collisionPoint[1] * CELL_SIZE + _collisionMask[3], _object, true, false))
-			{
-				return true;
-			}
-		}
-	}
-	
 	return false;
 }

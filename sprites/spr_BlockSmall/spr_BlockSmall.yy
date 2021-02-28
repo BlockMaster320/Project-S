@@ -68,8 +68,8 @@
     {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"6c44a6ba-fbf9-4681-8078-765e8aa3e182","tags":[],"resourceType":"GMImageLayer",},
   ],
   "parent": {
-    "name": "Sprites",
-    "path": "folders/Sprites.yy",
+    "name": "Blocks",
+    "path": "folders/Sprites/Blocks.yy",
   },
   "resourceVersion": "1.0",
   "name": "spr_BlockSmall",

@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Scripts",
-    "path": "folders/Scripts.yy",
+    "name": "Structs",
+    "path": "folders/Scripts/Structs.yy",
   },
   "resourceVersion": "1.0",
-  "name": "scr_Menu",
+  "name": "scr_Slot",
   "tags": [],
   "resourceType": "GMScript",
 }

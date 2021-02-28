@@ -14,16 +14,7 @@ function block_grid_to_array(_blockGrid)
 		for (var _c = 0; _c < _blockGridWidth; _c ++)
 		{
 			var _block = _blockGrid[# _c, _r];
-			if (_block != 0)
-			{
-				var _blockStruct =
-				{
-					id : _block.id
-				};
-				_blockArray[_r * _blockGridWidth + _c] = _blockStruct;
-			}
-			else
-				_blockArray[_r * _blockGridWidth + _c] = 0;
+			_blockArray[_r * _blockGridWidth + _c] = _block;
 		}
 	}
 	return _blockArray;
@@ -68,12 +59,9 @@ function block_array_to_grid(_blockArray, _gridWidth, _gridHeight)
 	for (var _i = 0; _i < array_length(_blockArray); _i ++)
 	{
 		var _block = _blockArray[_i];
-		var _blockStruct = 0;
-		if (is_struct(_block))
-		{
-			_blockStruct = new Block(_block.id);
-		}
-		_blockGrid[# _i % _gridWidth, _i div _gridWidth] = _blockStruct;
+		if (_block != 0)
+			_block.sprite = id_get_item(_block.id).spriteBlock;
+		_blockGrid[# _i % _gridWidth, _i div _gridWidth] = _block;
 	}
 	return _blockGrid;
 }

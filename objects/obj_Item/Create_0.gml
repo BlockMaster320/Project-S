@@ -17,8 +17,11 @@ stackRange = CELL_SIZE * 2;
 
 //Movement
 horizontalSpeed = 0;
+maxWalkSpeed = 1.3;
+accel = 0.4;
+frict = 0.5;
 verticalSpeed = 0;
-gravityAccel = 0.25;
+gravityAccel = 0.15;
 
 //Collision
 touchingBlock[3] = false;

@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Scripts",
-    "path": "folders/Scripts.yy",
+    "name": "Inventory",
+    "path": "folders/Scripts/Inventory.yy",
   },
   "resourceVersion": "1.0",
-  "name": "scr_Structs",
+  "name": "scr_InventoryStation",
   "tags": [],
   "resourceType": "GMScript",
 }
