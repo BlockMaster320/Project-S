@@ -9,7 +9,7 @@ if (instance_exists(obj_PlayerLocal))
 	_playerX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
 	_playerY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
 }
-show_debug_message(ds_list_size(heldSlotItemCount));
+
 //ITEM INTERACTION//
 //Item Collection
 var _itemObject = (obj_GameManager.serverSide != false) ? obj_Item : obj_ItemClient;
@@ -25,7 +25,7 @@ for (var _i = 0; _i < instance_number(_itemObject); _i ++)	//loop throught all t
 	{
 		//Get the Item's Slot
 		var _itemSlot = _item.itemSlot;
-		var _remainder = item_collect_remainder(inventoryGrid, _itemSlot);
+		var _remainder = slotSet_add_slot_remainder(inventoryGrid, _itemSlot);
 		
 		//Start Collecting the Item
 		if (ds_list_find_index(fullSlotsIdList, _itemSlot.id) == - 1)	//check if there's space for the item in the inventory
@@ -121,7 +121,7 @@ var _blockCenterY = _blockGridY * CELL_SIZE + CELL_SIZE * 0.5;
 inRange = (point_distance(_playerX, _playerY, _blockCenterX, _blockCenterY) <= interactionRange);
 
 //Block Mining
-if (buttonLeft && inRange && _selectedBlock != 0)
+if (buttonLeft && inRange && _selectedBlock != 0 && !inventoryMenu)
 {
 	//Increase mineProgress
 	mineProgress += (selectedSlot == 0) ? 1 : id_get_item(selectedSlot.id).mineForce;	//increase mine progress
@@ -143,7 +143,7 @@ if (buttonLeftReleased || (_blockGridX != previousBlockGridX || _blockGridY != p
 	mineProgress = 0;
 
 //Block Placing
-if (buttonRightPressed && inRange && selectedSlot != 0 && _selectedBlock == 0)
+if (buttonRightPressed && inRange && selectedSlot != 0 && _selectedBlock == 0 && !inventoryMenu)
 {
 	var _isOverlappingPlayer = check_block_collision(obj_PlayerLocal, selectedSlot.id, _blockGridX, _blockGridY)
 							   || check_block_collision(obj_PlayerClient, selectedSlot.id, _blockGridX, _blockGridY);

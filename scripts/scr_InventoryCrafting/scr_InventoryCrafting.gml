@@ -1,5 +1,4 @@
 //Function checking the slots in the crafting grid && updating the crafting products accordingly.
-
 function crafting_update_products(_craftingGrid)
 {
 	//Create a Map of Resources (Items That Can Be Used for Crafting)
@@ -60,7 +59,6 @@ function crafting_update_products(_craftingGrid)
 }
 
 /// Function updating the the slots in the craftingGrid according to taken crafting products.
-
 function crafting_update_resources(_craftingGrid, _productId, _productItemCount)
 {
 	//Get the Crafring Product Data

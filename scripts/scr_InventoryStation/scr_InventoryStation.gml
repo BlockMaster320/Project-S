@@ -1,5 +1,4 @@
 /// Function checking the space around the player for station blocks to add to stationList.
-
 function station_search()
 {
 	//Get Station Search Start Position
@@ -94,7 +93,6 @@ function station_search()
 }
 
 /// Function updating station's variables.
-
 function station_update(_index)
 {
 	//Get the Station
@@ -106,11 +104,22 @@ function station_update(_index)
 }
 
 /// Function unlisting a station from stationList.
-
 function station_unlist(_index, _remove)
 {
 	//Get the Station
 	var _station = stationList[| _index];
+	
+	//Remove Station's Slots from the splitList
+	for (var _i = 0; _i < ds_list_size(splitList); _i ++)
+	{
+		var _splitSlot = splitList[| _i];
+		if (_splitSlot[4] == _station)
+		{
+			heldSlotItemCount -= _splitSlot[3];
+			ds_list_delete(splitList, _i);
+			_i -= 1;	//this position was deleted so the next station's index is going to be the same (the list shifted by 1)
+		}
+	}
 	
 	//Remove Station's Variables Used for Slot Interaction
 	ds_grid_destroy(_station.storageGrid);
@@ -125,7 +134,6 @@ function station_unlist(_index, _remove)
 }
 
 /// Function for updating the selected station indexes.
-
 function station_selection_update(_scrollDirection, _scrollSide, _stationPreferred)
 {
 	//Wrap the Selected Station Indexes
@@ -159,7 +167,6 @@ function station_selection_update(_scrollDirection, _scrollSide, _stationPreferr
 }
 
 /// Function for drawing && interacting with a station.
-
 function station_draw(_station, _side, _offsetX, _offsetY, _slotSize, _itemSize)
 {
 	//Get the GUI Properties
