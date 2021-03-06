@@ -31,7 +31,7 @@ if (inventoryWheel)
 	draw_sprite_ext(spr_SlotFrame, 0, _wheelCenterX - _scale * 50 - (22 * _scale) * 0.5,
 					_wheelCenterY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
 	
-	for (var _i = 0; _i < wheelSlots; _i ++)
+	for (var _i = 0; _i < wheelSlots; _i ++)	//draw each slot of the inventory wheel
 	{
 		var _angle = 90 + (180 / (wheelSlots - 1)) * _i;	//get draw x && y
 		var _drawX = _wheelCenterX + lengthdir_x(_scale * 50, _angle) - _itemSize * 0.5;
@@ -49,26 +49,26 @@ if (inventoryWheel)
 //Scroll Through the Inventory Wheel
 if (!inventoryMenu)
 {
-	if (mouse_wheel_down()) selectedPosition += 1;
-	if (mouse_wheel_up()) selectedPosition -= 1;
-	if (mouse_wheel_up() || mouse_wheel_down()) mineProgress = 0;	//reset mine progress
+	if (mouseWheelDown) selectedPosition += 1;
+	if (mouseWheelUp) selectedPosition -= 1;
+	if (mouseWheelDown || mouseWheelUp) mineProgress = 0;	//reset mine progress
 }
 
-//Update Selected Slot
+//Update the Selected Slot
 selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
 
 //INVENTORY MENU//
 //Open/Close the Inventory Menu
 if (keyInventory)
 {
-	//Close/Open the Inventory
+	//Open/Close the Inventory
 	inventoryMenu = !inventoryMenu;
 	
 	//Search for Stations
 	if (inventoryMenu)
 		searchForStations = true;
 	
-	//Remove All Stations from stationLists
+	//Remove All Stations from the stationList
 	else
 	{
 		for (var _i = 0; _i < ds_list_size(stationList); _i ++)
@@ -121,6 +121,16 @@ if (inventoryMenu)
 					  _guiHeight * 0.5 - _inventoryHeight * _slotSize * 0.5 + (_slotSize - _itemSize) * 0.5;
 	inventory_section(inventoryGrid, 0, _inventoryX, _inventoryY, noone, _itemSize, _slotSize, false, false);	//draw && interact with InventoryGrid
 	
+	//Check Wheter the Cursor is Within the Area of the Inventory Section
+	var _areaInventory = cursor_in_section(_inventoryX, _inventoryY, _inventoryWidth, _inventoryHeight, _slotSize, _itemSize);
+	
+	//Change selectedPosition Inside the Inventory
+	if (_areaInventory && keyModifier2)
+	{
+		if (mouseWheelDown) selectedPosition += 1;
+		if (mouseWheelUp) selectedPosition -= 1;
+	}
+	
 	//Armor Grid
 	var _armorX = _inventoryX - _slotSize * 1.7;	//set x && y top-left origin for drawing the armor
 	var _armorY = _inventoryY;
@@ -131,12 +141,12 @@ if (inventoryMenu)
 	var _toolY = _armorY + _slotSize * ds_grid_height(armorGrid);
 	inventory_section(toolGrid, 0, _toolX, _toolY, noone, _itemSize, _slotSize, false, false);	//draw && interact with toolGrid
 	
-	//Get the Crafting Grid Updated Width
+	//Get the craftingGrid Updated Width
 	var _craftingWidth = ds_grid_width(craftingGrid);
 	var _craftingWidthUpdated = craftingLevel + 1;
 	
-	//Check Wheter the Crafting Grid Changed Its Width
-	if (_craftingWidth != _craftingWidthUpdated)
+	//Drop Slots Whose Position Exceeded the craftingGrid Width
+	if (_craftingWidth != _craftingWidthUpdated)	//check wheter the craftingGrid changed its width
 	{
 		//Loop Through the Crafting Grid Part That Was Subtracted && Drop Its Slots
 		var _craftingHeight = ds_grid_height(craftingGrid);
@@ -170,27 +180,48 @@ if (inventoryMenu)
 	var _craftingProductsY = _inventoryY + _slotSize * (ds_grid_height(craftingGrid) + 1);
 	inventory_section(craftingProducts, 1, _craftingProductsX, _craftingProductsY, noone, _itemSize, _slotSize, true, true);
 	
+	//Check Wheter the Cursor is Within the Area of the Crafting Section
+	var _areaCrafting = cursor_in_section(_craftingGridX, _craftingGridY, 5, 5, _slotSize, _itemSize);
+	
+	//Scroll Through the Crafting Prodducts Using Mouse Wheel
+	if (_areaCrafting && keyModifier2)
+	{
+		if (mouseWheelUp)
+			craftingProductsPosition += 1;
+		if (mouseWheelDown)
+			craftingProductsPosition -= 1;
+	}
+	
+	//Scroll Through the Crafting Products Using Arrows
+	if (ds_list_size(craftingProducts) > 0)
+	{
+		var _arrowSpacing = 4 * _scale;
+		var _arrowX = _craftingProductsX + sprite_get_width(spr_Arrow) * _scale + _arrowSpacing;
+		var _arrowY = _craftingProductsY - _slotSize * 0.5;
+	
+		if (arrow_button(_arrowX - _arrowSpacing, _arrowY, 180, true, _scale))
+			craftingProductsPosition -= 1;
+		if (arrow_button(_arrowX + _arrowSpacing, _arrowY, 0, true, _scale))
+			craftingProductsPosition += 1;
+	}
+	
+	//Clamp the craftingProductsPosition
+	craftingProductsPosition = clamp(craftingProductsPosition, 0, 
+							   clamp(ceil(ds_list_size(craftingProducts) / 2) - craftingProductsLength, 0, infinity));
+	
 	//Station Grids
 	if (_stationListSize != 0)
 	{
 		//Set Size of the Station Area
-		var _areaWidth = _slotSize * inventoryWidth;
-		var _areaHeight = _slotSize * inventoryHeight;
+		var _stationWidth = inventoryWidth;
+		var _stationHeight = inventoryHeight;
 		
-		//Set Station Area Sizes
-		var _areaLeftX1 = _guiWidth * 0.5 - _areaWidth - _stationOffsetX;
-		var _areaLeftX2 = _guiWidth * 0.5 - _stationOffsetX;
-		var _areaRightX1 = _guiWidth * 0.5 + _stationOffsetX;
-		var _areaRightX2 = _guiWidth * 0.5 + _areaWidth + _stationOffsetX
-		var _areaY1 = _guiHeight * 0.5 - _areaHeight - _stationOffsetY;
-		var _areaY2 = _guiHeight * 0.5 - _stationOffsetY * 0.5;
-		/*draw_rectangle_colour(_areaLeftX1, _areaY1, _areaLeftX2, _areaY2, c_green, c_green, c_green, c_green, false);*/
-		
-		//Check Wheter the Cursor is Within on the Station Areas
-		var _stationLeftSide = point_in_rectangle(mouseX, mouseY, _areaLeftX1, _areaY1,
-												  _areaLeftX2, _areaY2);
-		var _stationRightSide = point_in_rectangle(mouseX, mouseY, _areaRightX1, _areaY1,
-												   _areaRightX2, _areaY2);
+		//Check Wheter the Cursor is Within the Area of the Station Section
+		var _stationLeftX = _guiWidth * 0.5 - _stationWidth * _slotSize + (_slotSize - _itemSize) * 0.5 - _stationOffsetX;
+		var _stationRightX = _guiWidth * 0.5 + (_slotSize - _itemSize) * 0.5 + _stationOffsetX;
+		var _stationY = _guiHeight * 0.5 - _stationHeight * _slotSize + (_slotSize - _itemSize) - _stationOffsetY;
+		var _areaStationLeft = cursor_in_section(_stationLeftX, _stationY, _stationWidth + 0.15, _stationHeight, _slotSize, _itemSize);
+		var _areaStationRight = cursor_in_section(_stationRightX - _slotSize * 0.15, _stationY, _stationWidth, _stationHeight, _slotSize, _itemSize);
 		
 		//Get the Selected Stations
 		var _stationLeft = stationList[| stationSelectedArray[0]];
@@ -228,37 +259,38 @@ if (inventoryMenu)
 		//Scroll Through the Stations Using Arrows
 		var _arrowLeftX = _guiWidth * 0.5 - 40 * _scale;
 		var _arrowRightX = _guiWidth * 0.5 + 40 * _scale;
+		var _arrowY = _guiHeight * 0.5 - _stationOffsetY * 0.5;
 		var _arrowSpacing = 4 * _scale;
-		if (arrow_button(_arrowLeftX + _arrowSpacing, _areaY2 + 20, 0, true, _scale))
+		if (arrow_button(_arrowLeftX + _arrowSpacing, _arrowY + 20, 0, true, _scale))
 		{
-			_stationLeftSide = true;
+			_areaStationLeft = true;
 			_scrollDirection = 1;
 		}
-		if (arrow_button(_arrowLeftX - _arrowSpacing, _areaY2 + 20, 180, true, _scale))
+		if (arrow_button(_arrowLeftX - _arrowSpacing, _arrowY + 20, 180, true, _scale))
 		{
-			_stationLeftSide = true;
+			_areaStationLeft = true;
 			_scrollDirection = - 1;
 		}
-		if (arrow_button(_arrowRightX + _arrowSpacing, _areaY2 + 20, 0, true, _scale))
+		if (arrow_button(_arrowRightX + _arrowSpacing, _arrowY + 20, 0, true, _scale))
 		{
-			_stationRightSide = true;
+			_areaStationRight = true;
 			_scrollDirection = 1;
 		}
-		if (arrow_button(_arrowRightX - _arrowSpacing, _areaY2 + 20, 180, true, _scale))
+		if (arrow_button(_arrowRightX - _arrowSpacing, _arrowY + 20, 180, true, _scale))
 		{
-			_stationRightSide = true;
+			_areaStationRight = true;
 			_scrollDirection = - 1;
 		}
 		
 		//Scroll Through the Stations Using Mouse Wheel
 		if (_scrollDirection == 0)
-			_scrollDirection = mouse_wheel_up() - mouse_wheel_down();
+			_scrollDirection = (mouseWheelUp - mouseWheelDown) * keyModifier2;
 		
 		//Update the Station Scroll Inexes
-		if (_scrollDirection != 0 && (_stationLeftSide || _stationRightSide))
+		if (_scrollDirection != 0 && (_areaStationLeft || _areaStationRight))
 		{
 			//Get the Current Station Index of the Selected Side
-			var _selectedSide = (_stationLeftSide) ? 0 : 1;	//left side = 0; right side = 1
+			var _selectedSide = (_areaStationLeft) ? 0 : 1;	//left side = 0; right side = 1
 			
 			//Increase/Decrease the Selected Station Index
 			//var _stationItemPreferred = id_get_item(stationList[| stationSelectedArray[stationPreferredSide]].id);
@@ -272,6 +304,32 @@ if (inventoryMenu)
 			//Wrap the Selected Stations Indexes Again
 			stationSelectedArray[0] = wrap(stationSelectedArray[0], 0, _stationListSize);
 			stationSelectedArray[1] = wrap(stationSelectedArray[1], 0, _stationListSize);
+			
+			//Remove Slots of Stations That Are Not Selected from the splitList
+			/*	//possible feature; not working yet
+			for (var _i = 0; _i < ds_list_size(splitList); _i ++)
+			{
+				var _splitSlot = splitList[| _i];
+				var _splitSlotStation = _splitSlot[4];
+				if (_splitSlotStation != noone)
+				{
+					if (_splitSlotStation != stationList[| stationSelectedArray[stationPreferredSide]]
+						&& _splitSlotStation != stationList[| stationSelectedArray[!stationPreferredSide]])
+					{
+						heldSlotItemCount -= _splitSlot[3];
+						ds_list_delete(splitList, _i);
+						_i -= 1;	//this position was deleted so the next station's index is going to be the same (the list shifted by 1)
+					}
+				}
+			}*/
+		}
+		
+		//Set the Station Section As Selected
+		if (_areaStationLeft || _areaStationRight)
+		{
+			selectedSection = inventorySection.station;
+			if (_fullSide == noone)	//switch the preferred side
+				stationPreferredSide = _areaStationRight;	//left = 0, right = 1; right side == false => left side is selected
 		}
 		
 		//STATION SELECTION BAR//
@@ -284,7 +342,7 @@ if (inventoryMenu)
 		var _stationSpriteWidth = sprite_get_width(spr_Test1) * 0.5 * _scale;
 		var _drawStartX = _guiWidth * 0.5 - (_stationSpriteWidth + _stationSpacing)
 						  * (_stationListSize * 0.5) + _stationSpacing * 0.5;
-		var _drawStartY = _areaY1 - 10 * _scale;
+		var _drawStartY = _stationY - 10 * _scale;
 		
 		//Draw the Station Selection Bar
 		for (var _i = 0; _i < _stationListSize; _i ++)
@@ -321,14 +379,6 @@ if (inventoryMenu)
 		if (heldSlot.itemCount != 0)
 			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, _itemSize, scale);	//draw the held slot
 	}
-	
-	//Scroll Through the Crafting Products
-	if (mouse_wheel_up())
-		craftingProductsPosition += 1;
-	if (mouse_wheel_down())
-		craftingProductsPosition -= 1;
-	craftingProductsPosition = clamp(craftingProductsPosition, 0, 
-							   clamp(ceil(ds_list_size(craftingProducts) / 2) - craftingProductsLength, 0, infinity));
 	
 	draw_line_width_colour(_guiWidth * 0.5, 0, _guiWidth * 0.5, _guiHeight, 1, c_blue, c_blue);	//draw some lines for testing
 	draw_line_width_colour(0, _guiHeight * 0.5, _guiWidth, _guiHeight * 0.5, 1, c_red, c_red);

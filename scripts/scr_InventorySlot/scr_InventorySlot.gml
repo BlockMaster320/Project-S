@@ -1,12 +1,4 @@
-/// Function for adding items to an item slot && returning number of items exceeding its itemLimit.
-function slot_add_items(_slot, _amount)
-{
-	var _itemLimit = id_get_item(_slot.id).itemLimit;
-	var _remainder = clamp((_slot.itemCount + _amount) - _itemLimit, 0, infinity);
-	_slot.itemCount += _amount - _remainder;
-	return _remainder;
-}
-
+///SLOT GET && SET///
 /// Function which gets a slot from its grid/list/variable.
 function slot_get(_slotSet, _i, _j)
 {
@@ -33,38 +25,124 @@ function slot_set(_slotSet, _i, _j, _value, _station)
 	station_slot_update(_station, _i, _j);
 }
 
-/// Function returning position of a slot on a given position in a grid.
-
-function position_get_gridPosition(_slotSet, _position)
+/// Function returning a slot on a given position in a grid.
+function position_slot_get(_slotSet, _position)
 {
-	var _columns = ds_grid_width(_slotSet);	//get number of columns && rows
+	var _gridPosition = slot_get_gridPosition(_slotSet, _position)
+	return _slotSet[# _gridPosition[0], _gridPosition[1]];
+}
+
+/// Function changing value of a slot on a given position in a grid.
+function position_slot_set(_slotSet, _position, _value)
+{
+	var _gridPosition = slot_get_gridPosition(_slotSet, _position)
+	_slotSet[# _gridPosition[0], _gridPosition[1]] = _value;
+}
+
+/// Function returning row && column of a slot on a given position in a grid.
+function slot_get_gridPosition(_slotSet, _position)
+{
+	//Get Number of Columns && Rows
+	var _columns = ds_grid_width(_slotSet);
 	var _rows = ds_grid_height(_slotSet);
 	
-	var _totalSlots = _columns * _rows;	//tile the position to fit into the slotSet
-	_position = _position % _totalSlots;
+	//Wrap the Position to Fit into the slotSet
+	var _totalSlots = _columns * _rows;
+	_position = wrap(_position, 0, _totalSlots - 1);
+	/*_position = _position % _totalSlots;
 	if (sign(_position) == - 1)
-		_position = _totalSlots + _position;
+		_position = _totalSlots + _position;*/
 	
-	var _slotRow = _position div _columns;	//get slot's column && row
+	//Get Slot's Column && Row
+	var _slotRow = _position div _columns;
 	var _slotColumn = _position % _columns;
 	
 	return [_slotColumn, _slotRow];
 }
 
-/// Function returning a slot on a given position in a grid.
-
-function position_slot_get(_slotSet, _position)
+///SLOT SPECIFIC ACTIONS///
+/// Function for adding items to an item slot && returning number of items exceeding its itemLimit.
+function slot_add_items(_slot, _amount)
 {
-	var _gridPosition = position_get_gridPosition(_slotSet, _position)
-	return _slotSet[# _gridPosition[0], _gridPosition[1]];
+	var _itemLimit = id_get_item(_slot.id).itemLimit;
+	var _remainder = clamp((_slot.itemCount + _amount) - _itemLimit, 0, infinity);
+	_slot.itemCount += _amount - _remainder;
+	return _remainder;
 }
 
-/// Function changing value of a slot on a given position in a grid.
-
-function position_slot_set(_slotSet, _position, _value)
+/// Function clustering all items of the same idea to the selected slot.
+function slot_cluster(_slotSet, _i, _j, _station)
 {
-	var _gridPosition = position_get_gridPosition(_slotSet, _position)
-	_slotSet[# _gridPosition[0], _gridPosition[1]] = _value;
+	//Loop Through the Given Set of Slots
+	var _slotSelected = slot_get(_slotSet, _i, _j);
+	for (var _r = 0; _r < ds_grid_height(_slotSet); _r ++)
+	{
+		for (var _c = 0; _c < ds_grid_width(_slotSet); _c ++)
+		{
+			//Skip the Selected Slot
+			if (_r == _j && _c == _i)
+				continue;
+			
+			//Merge the Slot to the Selected One
+			var _slot = _slotSet[# _c, _r];
+			if (_slot != 0 && _slot.id == _slotSelected.id)
+			{
+				//Add the Slot's itemCount to the Selected Slot
+				var _remainder = slot_add_items(_slotSelected, _slot.itemCount);
+				_slot.itemCount = _remainder;
+				if (_slot.itemCount == 0)
+					slot_set(_slotSet, _c, _r, 0, _station);
+				
+				//Return the Function if the Selected Slot is Full
+				if (_remainder > 0)
+					return;
+			}
+		}
+	}
+}
+
+/// Function moving a slot from its inventory section to selected one.
+/// variables needed: selectedSection, stationList, stationSelectedArray, stationPreferredSide, inventoryGrid
+function slot_move(_slotSet, _i, _j, _station)
+{
+	//Get the Slot
+	var _slot = slot_get(_slotSet, _i, _j);
+	var _slotSetTarget = noone;
+	var _stationSelected = noone;
+	
+	//Set the Target slotSet to Inventory Grid
+	if (_slotSet != inventoryGrid)
+		_slotSetTarget = inventoryGrid;
+	
+	//Set the Target slotSet to the Selected Section's slotSet
+	else
+	{
+		switch (selectedSection)
+		{
+			case noone:
+				return;
+				break;
+		
+			case inventorySection.station:
+			{
+				//Return If There's No Station
+				if (ds_list_size(stationList) == 0)
+					return;
+				
+				//Get the Selected Station && Its slotSet
+				_stationSelected = stationList[| stationSelectedArray[stationPreferredSide]];
+				_slotSetTarget = _stationSelected.storageGrid;
+			}
+			break;
+		}
+	}
+	
+	//Add the Slot to the Selected slotSet
+	slotSet_add_slot(_slotSetTarget, _slot, _stationSelected);
+	if (_slot.itemCount == 0)
+		slot_set(_slotSet, _i, _j, 0, _station);
+	else if (selectedSection != inventorySection.station)	//update the slot in networking
+		station_slot_update(_station, _i, _j);
 }
 
 /// Function updating values of items in the split list.
@@ -90,8 +168,8 @@ function split_update()
 	heldSlot.itemCount = heldSlotItemCount - _splitItemCount * _splitListSize + _remainderTotal;
 }
 
+///SLOT NETWORKING UPDATE///
 /// Function sending a network message to update changed slot in a station.
-
 function station_slot_update(_station, _i, _j)
 {
 	//Return If the Slot Isn't in a Station or If Networking Isn't Turned On
@@ -122,7 +200,6 @@ function station_slot_update(_station, _i, _j)
 }
 
 /// Function changing a station slot to an updated slot recieved through networking.
-
 function station_slot_change(_worldGridX, _worldGridY, _i, _j, _slot)
 {
 	//Set the Local Slot to the Updated One

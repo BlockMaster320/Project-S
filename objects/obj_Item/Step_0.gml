@@ -91,7 +91,7 @@ if (collectItem)
 			if (_idPosition != - 1)
 				ds_list_delete(_fullSlotsIdList, _idPosition);
 				
-			item_collect(obj_Inventory.inventoryGrid, itemSlot);	//add item to the inventory
+			slotSet_add_slot(obj_Inventory.inventoryGrid, itemSlot, noone);	//add item to the inventory
 		}
 		
 		else if (_objectIndex == obj_PlayerClient)

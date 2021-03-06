@@ -600,13 +600,13 @@ function message_receive_client(_socket, _buffer)
 			
 			//Remove the Item's ID From the fullSlotsIdList (When the Item Has Been Collected)
 			var _fullSlotsIdList = obj_Inventory.fullSlotsIdList;
-			var _idPosition = ds_list_find_index(_fullSlotsIdList, _itemId);	//delete the item's ID from the fullSlotsIdList
+			var _idPosition = ds_list_find_index(_fullSlotsIdList, _itemId);	//delete the Item's ID from the fullSlotsIdList
 			if (_idPosition != - 1)
 				ds_list_delete(_fullSlotsIdList, _idPosition);
 			
 			//Add the Item to the Inventory
 			var _itemSlot = new Slot(_itemId, _itemCount);
-			item_collect(obj_Inventory.inventoryGrid, _itemSlot);	//add item to the inventory
+			slotSet_add_slot(obj_Inventory.inventoryGrid, _itemSlot, noone);	//add Item's slot to the inventory
 		}
 		break;
 		

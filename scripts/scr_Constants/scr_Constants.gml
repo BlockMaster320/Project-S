@@ -51,6 +51,14 @@ enum itemSubCategory
 }
 
 //Inventory
+enum inventorySection
+{
+	inventory,	//main inventory space in the middle
+	armor,
+	tool,
+	station	
+}
+
 #macro SLOT_SIZE 20
 #macro ITEM_SIZE 16
 #macro STATION_SEARCH_SIZE 3

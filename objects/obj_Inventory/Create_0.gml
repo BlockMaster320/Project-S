@@ -5,6 +5,8 @@ scale = 2.5;
 mouseX = 0;
 mouseY = 0;
 
+selectedSection = inventorySection.station;
+
 //Player Sections
 inventoryWidth = 7;	//set invenory grid
 inventoryHeight = 4;
