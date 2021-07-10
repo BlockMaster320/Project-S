@@ -8,14 +8,9 @@ function station_search()
 	{
 		var _playerCenterX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
 		var _playerCenterY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
-		_searchStartX = _playerCenterX div CELL_SIZE - STATION_SEARCH_SIZE;
-		_searchStartY = _playerCenterY div CELL_SIZE - STATION_SEARCH_SIZE;
+		_searchStartX = floor(_playerCenterX / CELL_SIZE) - STATION_SEARCH_SIZE;
+		_searchStartY = floor(_playerCenterY / CELL_SIZE) - STATION_SEARCH_SIZE;
 	}
-	
-	//Clamp the Station Search Start Position
-	var _worldGrid = obj_WorldManager.worldGrid;
-	_searchStartX = clamp(_searchStartX, 0, ds_grid_width(_worldGrid) - 1);
-	_searchStartY = clamp(_searchStartY, 0, ds_grid_height(_worldGrid) - 1);
 	
 	//Loop Through Blocks in a Square Area Around the Player && Search for Stations
 	craftingLevel = 0;	//reset the craftingLevel
@@ -25,7 +20,7 @@ function station_search()
 		for (var _y = _searchStartY; _y <= _searchStartY + STATION_SEARCH_SIZE * 2; _y ++)
 		{
 			//Get the Block
-			var _block = _worldGrid[# _x, _y];
+			var _block = block_get(_x, _y, true);
 			if (_block == undefined)
 				continue;
 			
@@ -65,8 +60,8 @@ function station_search()
 					if (_item.subCategory != itemSubCategory.crafting)
 					{
 						_block.inStationRange = true;	//mark the station so it's not deleted from the list in the next step below
-						_block.worldGridX = _x;	//stations's position is needed for networking purposes
-						_block.worldGridY = _y;
+						_block.worldX = _x;	//stations's position is needed for networking purposes
+						_block.worldY = _y;
 					}
 				}
 			}
@@ -125,8 +120,8 @@ function station_unlist(_index, _remove)
 	ds_grid_destroy(_station.storageGrid);
 	variable_struct_remove(_station, "storageGrid");
 	variable_struct_remove(_station, "inStationRange");
-	variable_struct_remove(_station, "worldGridX");
-	variable_struct_remove(_station, "worldGridY");
+	variable_struct_remove(_station, "worldX");
+	variable_struct_remove(_station, "worldY");
 	
 	//Remove the Station from stationList
 	if (_remove)

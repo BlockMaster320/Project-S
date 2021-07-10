@@ -1,5 +1,5 @@
 //Item's Slot Structure
-itemSlot = new Slot(0, 15);
+itemSlot = new Slot(0, 1, noone);
 /*
 //Item Collection && Stacking
 collectItem = false;

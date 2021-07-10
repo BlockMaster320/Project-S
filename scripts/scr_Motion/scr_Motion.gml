@@ -1,7 +1,6 @@
 /// Function for horizontal movement.
 /// modyfing varaibles: horizontalSpeed
 /// variables needed: accel, frict, maxWalkSpeed
-
 function movement(_moveRight, _moveLeft)
 {
 	var _moveSign = sign(_moveRight - _moveLeft);
@@ -24,7 +23,6 @@ function movement(_moveRight, _moveLeft)
 /// Function for jumping.
 /// modifying variables: verticalSpeed, jumpTime, onGroundTimer, delayedJumpTimer
 /// varaibles needed: touchingBlocks[4]
-
 function jump(_jump, _jumpHold)
 {
 	if (_jump) delayedJumpTimer = 4;	//jump
@@ -46,7 +44,6 @@ function jump(_jump, _jumpHold)
 /// Function for applying gravity.
 /// modyfing varaibles: verticalSpeed
 /// variables needed: gravityAccel
-
 function gravity()
 {
 	verticalSpeed += gravityAccel;	//gravity
@@ -55,7 +52,6 @@ function gravity()
 /// Function for linearly interpolating between 2 position.
 /// modyfing varaibles: x, y
 /// variables needed: xOrigin, yOrigin, xTarget, yTarget, moveTime
-
 function interpolate(_xOrigin, _yOrigin, _xTarget, _yTarget, _moveTime)
 {
 	x = lerp(_xOrigin, _xTarget, _moveTime / POSITION_UPDATE);

@@ -1,6 +1,5 @@
 //GRIDS <-> ARRAYS && STRUCTS
 /// Function converting a grid containing blocks to a array of structs representing the blocks.
-
 function block_grid_to_array(_blockGrid)
 {
 	//Set Variables
@@ -21,7 +20,6 @@ function block_grid_to_array(_blockGrid)
 }
 
 /// Function converting a grid containing slots to a array of structs representing the slots.
-
 function slot_grid_to_array(_slotGrid)
 {
 	//Set Variables
@@ -35,6 +33,7 @@ function slot_grid_to_array(_slotGrid)
 		for (var _c = 0; _c < _slotGridWidth; _c ++)
 		{
 			var _slot = _slotGrid[# _c, _r];
+			/*
 			if (_slot != 0)
 			{
 				var _slotStruct =
@@ -45,49 +44,50 @@ function slot_grid_to_array(_slotGrid)
 				_slotArray[_r * _slotGridWidth + _c] = _slotStruct;
 			}
 			else
-				_slotArray[_r * _slotGridWidth + _c] = 0;
+				_slotArray[_r * _slotGridWidth + _c] = 0;*/
+			_slotArray[_r * _slotGridWidth + _c] = _slot;
 		}
 	}
 	return _slotArray;
 }
 
 /// Function converting a array containing structs representing the blocks to a grid of blocks.
-
 function block_array_to_grid(_blockArray, _gridWidth, _gridHeight)
 {
 	var _blockGrid = ds_grid_create(_gridWidth, _gridHeight);
 	for (var _i = 0; _i < array_length(_blockArray); _i ++)
 	{
 		var _block = _blockArray[_i];
+		/*
 		if (_block != 0)
-			_block.sprite = id_get_item(_block.id).spriteBlock;
+			_block.sprite = id_get_item(_block.id).spriteBlock;*/
 		_blockGrid[# _i % _gridWidth, _i div _gridWidth] = _block;
 	}
 	return _blockGrid;
 }
 
-/// Function converting a array containing structs representing the slots to a grid of slots.
-
+/// Function converting a array containing structs representing slots to a grid of slots.
 function slot_array_to_grid(_slotArray, _gridWidth, _gridHeight)
 {
 	var _slotGrid = ds_grid_create(_gridWidth, _gridHeight);
 	for (var _i = 0; _i < array_length(_slotArray); _i ++)
 	{
 		var _slot = _slotArray[_i];
+		
+		/*
 		var _slotStruct = 0;
 		if (is_struct(_slot))
 		{
-			_slotStruct = new Slot(_slot.id, _slot.itemCount);
-		}
-		_slotGrid[# _i % _gridWidth, _i div _gridWidth] = _slotStruct;
+			_slotStruct = new Slot(_slot.id, _slot.itemCount, noone);
+		}*/
+		_slotGrid[# _i % _gridWidth, _i div _gridWidth] = _slot;
 	}
 	return _slotGrid;
 }
 
 
-//GRIDS <-> LISTS && MAPS
+//GRIDS <-> LISTS && MAPS (OBSOLETE)
 /// Function converting a grid containing blocks to a list of maps representing the blocks.
-
 function block_grid_to_list(_blockGrid)
 {
 	var _blockList = ds_list_create();
@@ -112,7 +112,6 @@ function block_grid_to_list(_blockGrid)
 }
 
 /// Function converting a grid containing slots to a list of maps representing the slots.
-
 function slot_grid_to_list(_slotGrid)
 {
 	var _slotList = ds_list_create();
@@ -138,7 +137,6 @@ function slot_grid_to_list(_slotGrid)
 }
 
 /// Function converting a list containing maps representing the blocks to a grid of blocks.
-
 function block_list_to_grid(_blockList, _gridWidth, _gridHeight)
 {
 	var _blockGrid = ds_grid_create(_gridWidth, _gridHeight);
@@ -158,7 +156,6 @@ function block_list_to_grid(_blockList, _gridWidth, _gridHeight)
 }
 
 /// Function converting a list containing maps representing the slots to a grid of slots.
-
 function slot_list_to_grid(_slotList, _gridWidth, _gridHeight)
 {
 	var _slotGrid = ds_grid_create(_gridWidth, _gridHeight);
@@ -170,7 +167,7 @@ function slot_list_to_grid(_slotList, _gridWidth, _gridHeight)
 		{
 			var _id = _slotMap[? "id"];
 			var _itemCount = _slotMap[? "itemCount"];
-			var _slot = new Slot(_id, _itemCount);
+			var _slot = new Slot(_id, _itemCount, noone);
 		}
 		
 		_slotGrid[# _i % _gridWidth, _i div _gridWidth] = _slot;

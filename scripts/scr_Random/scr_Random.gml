@@ -1,26 +1,22 @@
 /// Function returning a random value (0. - 1.) based on given vec2 value.
-
 function random_value(_x, _y)
 {
 	return abs(frac(sin(dot_product(_x, _y, 12.9898, 78.233)) * 43758.5453));
 }
 
 /// Function returning a random value (0. - 1.) based on given vec2 value && given generation seed.
-
-function random_seed_value(_x, _y, _seed)
+function random_seed_value(_x, _y, _generationSeed)
 {
-	return floor(abs(frac(sin(dot_product(_x, _y, 12.9898, 78.233)) * 43758.5453)) * 99999 * _seed);
+	return floor(abs(frac(sin(dot_product(_x, _y, 12.9898, 78.233)) * 43758.5453)) * 99999 * _generationSeed);
 }
 
 /// Function returning a generation seed based on given world seed.
-
 function get_generation_seed(_worldSeed)
 {
 	return random_value(_worldSeed + 1, _worldSeed + 1);
 }
 
 /// Function returning a random value (0. - 1.) based on given vec2 value.
-
 function random_vector(_x, _y)
 {
 	random_set_seed(floor(random_value(_x, _y) * 99999));
@@ -28,7 +24,6 @@ function random_vector(_x, _y)
 }
 
 /// Function returning a random vector from the given vector set.
-
 function random_limited_vector(_x, _y, _vectorSet)
 {
 	//Get a Random Vector

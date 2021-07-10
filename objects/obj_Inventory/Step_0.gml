@@ -51,7 +51,7 @@ for (var _i = 0; _i < instance_number(_itemObject); _i ++)	//loop throught all t
 								_objectId = obj_Server.objectIdCount ++;
 								var _serverBuffer = obj_Server.serverBuffer;
 							
-								message_item_create(_serverBuffer, _objectId, _item.x, _item.y, _itemSlot.id, _remainder, 10);	//send message to create an Item
+								message_item_create(_serverBuffer, _objectId, _item.x, _item.y, _itemSlot, 10);	//send message to create an Item
 								with (obj_PlayerClient)
 									network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
 								
@@ -65,7 +65,8 @@ for (var _i = 0; _i < instance_number(_itemObject); _i ++)	//loop throught all t
 							with (_newItem)
 							{
 								objectId = _objectId;
-								itemSlot = new Slot(_itemSlot.id, _remainder);
+								itemSlot = slot_copy(_itemSlot);
+								itemSlot.itemCount = _remainder;
 								collectCooldown = 20;
 							}
 							if (obj_GameManager.networking)
@@ -95,43 +96,90 @@ for (var _i = 0; _i < instance_number(_itemObject); _i ++)	//loop throught all t
 }
 
 //Item Dropping
-var _selectedSlot = selectedSlot;
-if (keyItemDrop && _selectedSlot != 0)
+if (keyItemDrop && chosenSlot[keyModifier2] != 0)
 {
 	//Set Item's Drop Position
 	var _dropX = _playerX - sprite_get_width(spr_ItemMask) * 0.5;
 	var _dropY = _playerY - sprite_get_height(spr_ItemMask) * 0.5;
 	
 	//Drop the Item
-	slot_drop(selectedSlot.id, selectedSlot.itemCount, _dropX, _dropY, 60, true);
+	slot_drop(chosenSlot[keyModifier2], _dropX, _dropY, 60, true, true);
 	
 	//Clear the Item's Slot
-	position_slot_set(inventoryGrid, selectedPosition, 0);
+	var _slotSet = (keyModifier2) ? toolGrid : inventoryGrid;
+	position_slot_set(_slotSet, chosenPosition[keyModifier2], 0);
 }
 
 //BLOCK INTERACTION//
-//Get Block's World Grid Position
-var _blockGridX = mouse_x div CELL_SIZE;
-var _blockGridY = mouse_y div CELL_SIZE;
-var _selectedBlock = obj_WorldManager.worldGrid[# _blockGridX, _blockGridY];
+//Get the Block && Its World Position
+var _blockGridX = floor(mouseX / CELL_SIZE);
+var _blockGridY = floor(mouseY / CELL_SIZE);
+var _selectedBlock = block_get(_blockGridX, _blockGridY, false);
 
 //Get Block's Center Position
 var _blockCenterX = _blockGridX * CELL_SIZE + CELL_SIZE * 0.5;		
 var _blockCenterY = _blockGridY * CELL_SIZE + CELL_SIZE * 0.5;
 inRange = (point_distance(_playerX, _playerY, _blockCenterX, _blockCenterY) <= interactionRange);
 
+//Set the Slot Used for Mining && Placing
+var _chosenSlotItem = [0, 0];	//get items of the chosen slots
+if (chosenSlot[0] != 0) _chosenSlotItem[0] = id_get_item(chosenSlot[0].id);
+if (chosenSlot[1] != 0) _chosenSlotItem[1] = id_get_item(chosenSlot[1].id);
+
+var _mineWheel = 0;	//set which slot wheel should be used for mining && which for placing; 0 - primary, 1 - secondary
+var _placeWheel = 0;
+if (chosenSlot[0] == 0 || chosenSlot[1] == 0)
+{
+	if (chosenSlot[1] != 0)
+	{
+		_mineWheel = 1;
+		_placeWheel = 1;
+	}
+}
+else
+{
+	if (_chosenSlotItem[1].category == itemCategory.tool && _chosenSlotItem[0].category != itemCategory.tool)
+		_mineWheel = 1;
+	if (_chosenSlotItem[1].placeable && !_chosenSlotItem[0].placeable)
+		_placeWheel = 1;
+}
+
+var _mineSlot = chosenSlot[_mineWheel];	//set which slot should be used for mining && which for placing
+var _placeSlot = chosenSlot[_placeWheel];
+
 //Block Mining
+var _mineSlotItem = _chosenSlotItem[_mineWheel];
 if (buttonLeft && inRange && _selectedBlock != 0 && !inventoryMenu)
 {
 	//Increase mineProgress
-	mineProgress += (selectedSlot == 0) ? 1 : id_get_item(selectedSlot.id).mineForce;	//increase mine progress
-	mineBlockEndurance = id_get_item(_selectedBlock.id).endurance;	//get the block's endurance
+	var _mineForce = 1;
+	if (_mineSlot != 0)	//get mineForce of the slot
+	{
+		if (_mineSlotItem.category == itemCategory.tool)
+			_mineForce = 2 * _mineSlot.properties[property.power];
+	}
+	mineProgress += _mineForce;	//increase mineProgress by mineForce
+	mineBlockPersistence = id_get_item(_selectedBlock.id).persistence;	//get the block's persistence
 	
 	//Mine the Block
-	if (mineProgress >= mineBlockEndurance)	//mine the block
+	if (mineProgress >= mineBlockPersistence)	//mine the block
 	{
 		//Destroy the Block
 		block_destroy(_blockGridX, _blockGridY);
+		block_tile(_blockGridX, _blockGridY, true);
+		
+		if (_mineSlotItem != 0 && _mineSlotItem.category == itemCategory.tool)
+		{
+			_mineSlot.endurance -= 1 / (_mineSlot.properties[property.durability] + 1);
+			if (_mineSlot.endurance == 0)
+			{
+				var _slotSet = (_mineWheel == 0) ? inventoryGrid : toolGrid;
+				position_slot_set(_slotSet, chosenPosition[_mineWheel], 0);
+			}
+		}
+		
+		//Activate Nearby Items
+		item_activate(_blockCenterX, _blockCenterY - CELL_SIZE * 0.5);
 		
 		//Reset mineProgress
 		mineProgress = 0;
@@ -143,43 +191,51 @@ if (buttonLeftReleased || (_blockGridX != previousBlockGridX || _blockGridY != p
 	mineProgress = 0;
 
 //Block Placing
-if (buttonRightPressed && inRange && selectedSlot != 0 && _selectedBlock == 0 && !inventoryMenu)
+var _placeSlotItem = id_get_item(_placeSlot.id);
+if (buttonRightPressed && inRange && _placeSlot != 0 && _selectedBlock == 0 && !inventoryMenu)
 {
-	var _isOverlappingPlayer = check_block_collision(obj_PlayerLocal, selectedSlot.id, _blockGridX, _blockGridY)
-							   || check_block_collision(obj_PlayerClient, selectedSlot.id, _blockGridX, _blockGridY);
-	if (!_isOverlappingPlayer)
+	if (_placeSlotItem.placeable)
 	{
-		//Place the Block && Send a Message to All Clients
-		if (obj_GameManager.serverSide != false)
+		var _isOverlappingPlayer = check_block_collision(obj_PlayerLocal, _placeSlot.id, _blockGridX, _blockGridY)
+								   || check_block_collision(obj_PlayerClient, _placeSlot.id, _blockGridX, _blockGridY);
+		if (!_isOverlappingPlayer)
 		{
-			//Send Message to All the Clients Directly
-			if (obj_GameManager.networking)
+			//Place the Block && Send a Message to All Clients
+			if (obj_GameManager.serverSide != false)
 			{
-				var _serverBuffer = obj_Server.serverBuffer;
-				message_block_create(_serverBuffer, _blockGridX, _blockGridY, selectedSlot.id);
-				with (obj_PlayerClient)
-					network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
+				//Send Message to All the Clients Directly
+				if (obj_GameManager.networking)
+				{
+					var _serverBuffer = obj_Server.serverBuffer;
+					message_block_create(_serverBuffer, _blockGridX, _blockGridY, _placeSlot.id);
+					with (obj_PlayerClient)
+						network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
+				}
+			
+				//Create a Local Block
+				block_set(_blockGridX, _blockGridY, new Block(_placeSlot.id));
+				block_tile(_blockGridX, _blockGridY, true);
 			}
-			
-			//Create a Local Block
-			obj_WorldManager.worldGrid[# _blockGridX, _blockGridY] = new Block(selectedSlot.id);
-		}
 		
-		//Send a Message to Create the Block to the Server
-		else
-		{
-			var _clientBuffer = obj_Client.clientBuffer;	//send message to create the block
-			var _clientSocket = obj_Client.client;
+			//Send a Message to Create the Block to the Server
+			else
+			{
+				var _clientBuffer = obj_Client.clientBuffer;	//send message to create the block
+				var _clientSocket = obj_Client.client;
 			
-			message_block_create(_clientBuffer, _blockGridX, _blockGridY, _selectedSlot.id);
-			network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
+				message_block_create(_clientBuffer, _blockGridX, _blockGridY, _placeSlot.id);
+				network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
 			
-		}
+			}
 		
-		//Subtract the Item from the Inventory
-		selectedSlot.itemCount -= 1;
-		if (selectedSlot.itemCount <= 0)
-			position_slot_set(inventoryGrid, selectedPosition, 0);
+			//Subtract the Item from the Inventory
+			_placeSlot.itemCount -= 1;
+			if (_placeSlot.itemCount <= 0)
+			{
+				var _slotSet = (_placeWheel == 0) ? inventoryGrid : toolGrid;
+				position_slot_set(_slotSet, chosenPosition[_placeWheel], 0);
+			}
+		}
 	}
 }
 

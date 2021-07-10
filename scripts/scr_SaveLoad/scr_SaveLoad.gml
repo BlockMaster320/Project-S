@@ -1,5 +1,4 @@
 /// Function triggering the world saving && closing process.
-
 function world_save_close()
 {
 	//Save the Game After Getting Client's Inventory Data
@@ -21,12 +20,8 @@ function world_save_close()
 }
 
 /// Function saving the world data to a given file.
-
 function world_save(_file)
 {
-	//Convert the World Grid to an Array
-	var _worldArray = block_grid_to_array(obj_WorldManager.worldGrid);
-	
 	//Get the Player Struct If the World File Already Exists
 	var _playerStruct = noone;
 	var _mainStruct = noone;
@@ -42,21 +37,29 @@ function world_save(_file)
 		_mainStruct =
 		{
 			worldSeed : obj_WorldManager.worldSeed,
-			worldWidth : obj_WorldManager.worldWidth,
-			worldHeight: obj_WorldManager.worldHeight,
-		
 			playerStruct : noone,
-			worldArray : noone,
+			worldStruct : {},
 			itemArray : noone
 		};
 		_playerStruct = {};
 	}
 	
+	//Save the worldStruct
+	var _chunkStructArray = variable_struct_get_names(obj_WorldManager.chunkStruct);
+	for (var _i = 0; _i < array_length(_chunkStructArray); _i ++)	//save the chunks in the chunkStruct to the worldStruct
+	{
+		var _chunkPosString = _chunkStructArray[_i];
+		var _commaPos = string_pos(",", _chunkPosString);
+		chunk_save(int64(string_copy(_chunkPosString, 1, _commaPos - 1)),
+				   int64(string_copy(_chunkPosString, _commaPos + 1, string_length(_chunkPosString))), noone);
+	}
+	_mainStruct.worldStruct = obj_WorldManager.worldStruct;
+	
 	//Save the Players && Their Inventories to a Struct
-	obj_PlayerLocal.selectedPosition = obj_Inventory.selectedPosition;
+	obj_PlayerLocal.playerChosenPosition = obj_Inventory.chosenPosition;
 	with (obj_Player)
 	{
-		var _player = new PlayerObject(x, y, horizontalSpeed, verticalSpeed, playerSelectedPosition,
+		var _player = new PlayerObject(x, y, horizontalSpeed, verticalSpeed, playerChosenPosition,
 									   playerInventoryGrid, playerArmorGrid, playerToolGrid);
 		variable_struct_set(_playerStruct, string(clientId), _player);
 	}
@@ -71,7 +74,6 @@ function world_save(_file)
 	
 	//Add the World Data to the Main Struct
 	variable_struct_set(_mainStruct, "playerStruct", _playerStruct);
-	variable_struct_set(_mainStruct, "worldArray", _worldArray);
 	variable_struct_set(_mainStruct, "itemArray", _itemArray);
 	
 	//Save the Main Struct as a JSON String
@@ -80,7 +82,6 @@ function world_save(_file)
 }
 
 /// Function loading the world data from a given file.
-
 function world_load(_file)
 {
 	if (file_exists(_file))
@@ -92,22 +93,17 @@ function world_load(_file)
 		var _mainStruct = json_parse(json_string_load(_file));
 		
 		var _worldSeed = _mainStruct.worldSeed;
-		var _worldWidth = _mainStruct.worldWidth;
-		var _worldHeight = _mainStruct.worldHeight;
-		
 		var _playerStruct = _mainStruct.playerStruct;
-		var _worldArray = _mainStruct.worldArray;
-		var _itemArray = _mainStruct.itemArray
-		
-		//Convert the World Array to a Grid && Replace It with the Current One
-		ds_grid_destroy(obj_WorldManager.worldGrid);
-		obj_WorldManager.worldGrid = block_array_to_grid(_worldArray, _worldWidth, _worldHeight);
+		var _itemArray = _mainStruct.itemArray;
 		
 		//Update World Parameters in the WorldManager
-		obj_WorldManager.worldWidth = _worldWidth;
-		obj_WorldManager.worldHeight = _worldHeight;
 		obj_WorldManager.worldSeed = _worldSeed;
 		obj_WorldManager.generationSeed = get_generation_seed(_worldSeed);
+		
+		//Load the worldStruct from the Save File
+		var _worldFile = _file;
+		var _mainStruct = json_parse(json_string_load(_worldFile));
+		obj_WorldManager.worldStruct = _mainStruct.worldStruct;
 		
 		//Instantiate Loaded Local Player
 		with (obj_Player) instance_destroy();	//destroy all existing players
@@ -128,7 +124,7 @@ function world_load(_file)
 		}
 		
 		//Get the Local Player's Inventory Grids && Replace Them With the Current Ones
-		var _selectedPosition = _player.selectedPosition;	//get the local player's invenotry grids
+		var _chosenPosition = _player.chosenPosition;	//get the local player's invenotry grids
 		var _inventoryArray = _player.inventoryArray;
 		var _armorArray = _player.armorArray;
 		var _toolArray = _player.toolArray;
@@ -148,8 +144,9 @@ function world_load(_file)
 		var _toolHeight = obj_Inventory.toolHeight;
 		obj_Inventory.toolGrid = slot_array_to_grid(_toolArray, _toolWidth, _toolHeight);
 		
-		obj_Inventory.selectedPosition = _selectedPosition;	//load the selectedPosition
-		obj_Inventory.selectedSlot = position_slot_get(obj_Inventory.inventoryGrid, _selectedPosition);
+		obj_Inventory.chosenPosition = _chosenPosition	//load the chosenPosition
+		obj_Inventory.chosenSlot[0] = [position_slot_get(obj_Inventory.inventoryGrid, _chosenPosition[0]),
+									   position_slot_get(obj_Inventory.inventoryGrid, _chosenPosition[1])];
 		
 		//Instantiate Loaded Items
 		with (obj_Item) instance_destroy();	//destroy all existing items
@@ -160,22 +157,20 @@ function world_load(_file)
 			var _y = _itemStruct.y;
 			var _horizontalSpeed = _itemStruct.horizontalSpeed;
 			var _verticalSpeed = _itemStruct.verticalSpeed;
-			var _itemId = _itemStruct.itemId;
-			var _itemCount = _itemStruct.itemCount;
+			var _itemSlot = _itemStruct.itemSlot;
 			
 			var _item = instance_create_layer(_x, _y, "Items", obj_Item);
 			with (_item)
 			{
 				horizontalSpeed = _horizontalSpeed;
 				verticalSpeed = _verticalSpeed;
-				itemSlot = new Slot(_itemId, _itemCount);
+				itemSlot = _itemSlot;
 			}
 		}
 	}
 }
 
 /// Function for generating a new world && storing its data in a file.
-
 function world_create(_worldName)
 {
 	//Create a Name for the New World File
@@ -188,22 +183,17 @@ function world_create(_worldName)
 	instance_activate_layer("WorldManagers");
 	
 	//Generate a New World && Set Its Properties
-	var _worldSeed = irandom(65536);
+	var _worldSeed = /*irandom(65536)*/1203;
 	var _generationSeed = get_generation_seed(_worldSeed);
-	var _worldWidth = 300;
-	var _worldHeight = 100;
 	
 	with (obj_WorldManager)	//set the new world properties in the WorldManager
 	{
 		worldSeed = _worldSeed;
 		generationSeed = _generationSeed;
-		worldWidth = _worldWidth;
-		worldHeight = _worldHeight;
-		worldGrid = world_generate(_worldWidth, _worldHeight, _generationSeed, 20);
 	}
 	
 	//Spawn the Player
-	instance_create_layer(100, 50, "Players", obj_PlayerLocal);
+	instance_create_layer(CELL_SIZE * 5, - CELL_SIZE * 25, "Players", obj_PlayerLocal);
 	
 	//Save the New World to a File
 	obj_GameManager.worldFile = _worldFile;
@@ -217,7 +207,6 @@ function world_create(_worldName)
 }
 
 /// Function clearing the world's content. (Destroying objects, clearing data structures.)
-
 function world_clear()
 {
 	//Destroy Objects
@@ -237,12 +226,18 @@ function world_clear()
 		ds_list_clear(stationList);
 	}
 	
-	//Clear the worldGrid
-	with (obj_WorldManager) ds_grid_clear(worldGrid, 0);
+	//Clear the chunkStruct
+	with (obj_WorldManager)
+	{
+		chunkStruct = {};
+		worldStruct = {};
+		chunkOrigin = [0, 0];
+		playerChunk = [0, 0];
+		playerChunkPrevious = [0, 0];
+	}
 }
 
 /// Function for quitting to the main menu.
-
 function world_close()
 {
 	//Turn Off Networking
@@ -274,7 +269,6 @@ function world_close()
 }
 
 /// Function for saving client's data to the world file.
-
 function client_save(_playerClient)
 {
 	//Get the playerStruct
@@ -289,7 +283,7 @@ function client_save(_playerClient)
 	//Create Struct Representing the PlayerClient
 	with (_playerClient)
 	{
-		var _player = new PlayerObject(x, y, horizontalSpeed, verticalSpeed, playerSelectedPosition,
+		var _player = new PlayerObject(x, y, horizontalSpeed, verticalSpeed, playerChosenPosition,
 									   playerInventoryGrid, playerArmorGrid, playerToolGrid);
 		variable_struct_set(_playerStruct, string(_playerClient.clientId), _player);
 	}
@@ -300,7 +294,6 @@ function client_save(_playerClient)
 }
 
 /// Function saving a JSON string to a given file using a buffer.
-
 function json_string_save(_string, _file)
 {
 	var _buffer = buffer_create(string_byte_length(_string) + 1, buffer_fixed, 1);
@@ -310,7 +303,6 @@ function json_string_save(_string, _file)
 }
 
 /// Function loading a JSON string from given file using a buffer.
-
 function json_string_load(_file)
 {
 	var _buffer = buffer_load(_file);

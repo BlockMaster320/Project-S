@@ -10,16 +10,9 @@ switch (_type)
 		//Get the Client's Socket
 		var _socket = async_load[? "socket"];
 		
-		//Send World Data to the Client
-		buffer_seek(serverBuffer, buffer_seek_start, 0);	//write world properties
-		buffer_write(serverBuffer, buffer_u8, messages.worldData);
-		buffer_write(serverBuffer, buffer_u16, obj_WorldManager.worldSeed);
-		buffer_write(serverBuffer, buffer_u16, obj_WorldManager.worldWidth);
-		buffer_write(serverBuffer, buffer_u16, obj_WorldManager.worldHeight);
-		
-		var _worldArray = block_grid_to_array(obj_WorldManager.worldGrid);	//write worldGrid
-		var _worldString = json_stringify(_worldArray);
-		buffer_write(serverBuffer, buffer_string, _worldString);
+		//Send Initial Message to the Client
+		buffer_seek(serverBuffer, buffer_seek_start, 0);
+		buffer_write(serverBuffer, buffer_u8, messages.clientConnect);
 		
 		network_send_packet(_socket, serverBuffer, buffer_tell(serverBuffer));
 	}

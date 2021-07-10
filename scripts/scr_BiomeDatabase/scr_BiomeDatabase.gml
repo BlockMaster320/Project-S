@@ -9,8 +9,8 @@ function id_get_biome(_id)
 		id : 0,
 		name : "Grassland",
 		groundLevel : - 10,
-		terrainHeight : 12,
-		terrainLayers : [[0, 2], [1, 0]],
+		terrainHeight : 30,
+		terrainLayers : [[0, 0]],	//0 - block ID; 1 - layer thickness (0 = to the bottom of the world)
 		treeDensity : 0.3,
 		
 		frequency : 0.1,
