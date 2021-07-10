@@ -48,10 +48,9 @@ function slot_get_gridPosition(_slotSet, _position)
 	
 	//Wrap the Position to Fit into the slotSet
 	var _totalSlots = _columns * _rows;
-	_position = wrap(_position, 0, _totalSlots - 1);
-	/*_position = _position % _totalSlots;
+	_position = _position % _totalSlots;
 	if (sign(_position) == - 1)
-		_position = _totalSlots + _position;*/
+		_position = _totalSlots + _position;
 	
 	//Get Slot's Column && Row
 	var _slotRow = _position div _columns;
@@ -152,6 +151,12 @@ function split_update()
 	var _splitListSize = ds_list_size(splitList);	//get number of items each split item should get
 	var _splitItemCount = floor(heldSlotItemCount / _splitListSize);
 	
+	/*if (_splitListSize == 2)
+	{
+		show_debug_message("ejje");
+		var _test;
+	}*/
+	
 	var _remainderTotal = 0;
 	for (var _i = 0; _i < _splitListSize; _i ++)	//loop trought the split items && add the items
 	{
@@ -160,7 +165,7 @@ function split_update()
 		
 		_slot.itemCount -= _splitSlot[3];
 		var _remainder = slot_add_items(_slot, _splitItemCount);
-		_splitSlot[3] = _splitItemCount - _remainder;
+		_splitSlot[@ 3] = _splitItemCount - _remainder;
 		_remainderTotal += _remainder;
 		
 		station_slot_update(_splitSlot[4], _splitSlot[1], _splitSlot[2]);
@@ -184,7 +189,7 @@ function station_slot_update(_station, _i, _j)
 	if (obj_GameManager.serverSide == true)
 	{
 		var _serverBuffer = obj_Server.serverBuffer;
-		message_slot_change(_serverBuffer, _station.worldGridX, _station.worldGridY, _i, _j, _slot);
+		message_slot_change(_serverBuffer, _station.worldX, _station.worldY, _i, _j, _slot);
 		with (obj_PlayerClient)
 			network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
 	}
@@ -194,16 +199,16 @@ function station_slot_update(_station, _i, _j)
 	{
 		var _clientBuffer = obj_Client.clientBuffer;
 		var _clientSocket = obj_Client.client;
-		message_slot_change(_clientBuffer, _station.worldGridX, _station.worldGridY, _i, _j, _slot);
+		message_slot_change(_clientBuffer, _station.worldX, _station.worldY, _i, _j, _slot);
 		network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
 	}
 }
 
 /// Function changing a station slot to an updated slot recieved through networking.
-function station_slot_change(_worldGridX, _worldGridY, _i, _j, _slot)
+function station_slot_change(_gridX, _gridY, _i, _j, _slot)
 {
 	//Set the Local Slot to the Updated One
-	var _station = obj_WorldManager.worldGrid[# _worldGridX, _worldGridY];
+	var _station = block_get(_gridX, _gridY, true);
 	var _stationItem = id_get_item(_station.id);
 	var _slotPosition = _j * _stationItem.storageWidth + _i;
 	_station.storageArray[_slotPosition] = _slot;

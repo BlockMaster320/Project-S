@@ -6,31 +6,32 @@ mouseX = 0;
 mouseY = 0;
 
 selectedSection = inventorySection.station;
+selectedSlot = [noone, 0, 0];	//an array containing a slot selected by the cursor && its x && y position
 
 //Player Sections
 inventoryWidth = 7;	//set invenory grid
 inventoryHeight = 4;
 inventoryGrid = ds_grid_create(inventoryWidth, inventoryHeight);
 
-armorWidth = 1;	//set armor grid
-armorHeight = 4;
+armorWidth = 3;	//set armor grid
+armorHeight = 2;
 armorGrid = ds_grid_create(armorWidth, armorHeight);
 
 toolWidth = 1;	//set tool grid
-toolHeight = 1;
+toolHeight = 4;
 toolGrid = ds_grid_create(toolWidth, toolHeight);
 
 /*
-inventoryGrid[# 0, 0] = new Slot(0, 16);	//add some items for testing
-inventoryGrid[# 1, 0] = new Slot(0, 16);
-inventoryGrid[# 2, 0] = new Slot(1, 32);
-inventoryGrid[# 0, 1] = new Slot(0, 16);
-inventoryGrid[# 1, 1] = new Slot(1, 5);
-inventoryGrid[# 2, 1] = new Slot(0, 8);*/
+inventoryGrid[# 0, 0] = new Slot(0, 16, noone);	//add some items for testing
+inventoryGrid[# 1, 0] = new Slot(0, 16, noone);
+inventoryGrid[# 2, 0] = new Slot(1, 32, noone);
+inventoryGrid[# 0, 1] = new Slot(0, 16, noone);
+inventoryGrid[# 1, 1] = new Slot(1, 5, noone);
+inventoryGrid[# 2, 1] = new Slot(0, 8, noone);*/
 /*
-inventoryGrid[# 5, 3] = new Slot(1, 25);
-inventoryGrid[# 3, 2] = new Slot(1, 25);
-armorGrid[# 0, 1] = new Slot(0, 32);*/
+inventoryGrid[# 5, 3] = new Slot(1, 25, noone);
+inventoryGrid[# 3, 2] = new Slot(1, 25, noone);
+armorGrid[# 0, 1] = new Slot(0, 32, noone);*/
 
 //Held Slot
 heldSlot = 0;
@@ -54,12 +55,13 @@ stationPreferredSide = 0;
 
 //Inventory Wheel
 inventoryWheel = true;
-selectedPosition = 0;	//slot's position in the invetoryGrid
-selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
+chosenPosition = [0, 0];	//position of the primary && secondary chosen slot
+chosenSlot = [position_slot_get(inventoryGrid, chosenPosition[0]), 
+			  position_slot_get(toolGrid, chosenPosition[1])];
 
 wheelSlots = 7;
-wheelCenterX = 0.97;
-wheelCenterY = 0.17;
+wheelX = 0.97;
+wheelY = 0.17;
 
 //Item Interaction
 approachRange = CELL_SIZE * 2;
@@ -71,7 +73,7 @@ previousBlockGridY = 0;
 interactionRange = CELL_SIZE * 5;
 inRange = false;
 mineProgress = 0;
-mineBlockEndurance = 0;
+mineBlockPersistence = 0;
 
 /*
 var _testStruct1 =

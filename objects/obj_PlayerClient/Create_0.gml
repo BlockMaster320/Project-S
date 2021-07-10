@@ -9,8 +9,8 @@ moveTime = 0;
 horizontalSpeed = 0;	//the variables are there just for collision checking (they're 0 all the time)
 verticalSpeed = 0;
 
-//Inventory
-playerSelectedPosition = 0;
+//Inventory Reference
+playerChosenPosition = [0, 0];
 playerInventoryGrid = ds_grid_create(obj_Inventory.inventoryWidth, obj_Inventory.inventoryHeight);
 playerArmorGrid = ds_grid_create(obj_Inventory.armorWidth, obj_Inventory.armorHeight);
 playerToolGrid = ds_grid_create(obj_Inventory.toolWidth, obj_Inventory.toolHeight);

@@ -113,7 +113,8 @@ if (menuState != noone)
 				//Delete the World Button
 				var _worldIsSelected = selectedWorldFile != noone;
 				if (button(_originX2, _originY + _buttonSpacingY * 1, _originX2 + _buttonWidth,
-							   _originY + _buttonSpacingY * 1 + _buttonHeight, "Delete the World", _worldIsSelected))
+						   _originY + _buttonSpacingY * 1 + _buttonHeight, "Delete the World", _worldIsSelected)
+						   || keyboard_check_pressed(vk_delete) && _worldIsSelected)
 				{
 					//Delete the World File
 					var _worldFile = worldFileArray[selectedWorldFile];
@@ -192,15 +193,15 @@ if (menuState != noone)
 				else
 				{
 					//Convert the Inventory Grids to Strings
-					var _selectedPosition = obj_Inventory.selectedPosition;
+					var _chosenPosition = obj_Inventory.chosenPosition;
 					var _inventoryString = json_stringify(slot_grid_to_array(obj_Inventory.inventoryGrid));
 					var _armorString = json_stringify(slot_grid_to_array(obj_Inventory.armorGrid));
 					var _toolString = json_stringify(slot_grid_to_array(obj_Inventory.toolGrid));
-			
+					
 					//Send the Inventory Grids to the Server
 					var _clientBuffer = obj_Client.clientBuffer;
 					var _clientSocket = obj_Client.client;
-					message_inventoryData(_clientBuffer, _selectedPosition, _inventoryString,
+					message_inventoryData(_clientBuffer, _chosenPosition, _inventoryString,
 											_armorString, _toolString);
 					network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
 					

@@ -1,13 +1,62 @@
-///Struct representing an item slot in the inventory && stations.
-
-function Slot(_id, _itemCount) constructor
+/// Struct representing an item slot in the inventory && stations.
+function Slot(_id, _itemCount, _attributes) constructor
 {
 	id = _id;
-	sprite = id_get_item(_id).spriteItem;
+	var _slotItem = id_get_item(_id);
+	sprite = _slotItem.spriteItem;
 	itemCount = _itemCount;
+	
+	switch (_slotItem.category)
+	{
+		case itemCategory.tool:
+		{
+			if (_attributes != noone)
+				properties = _attributes[0];
+			else
+				properties = _slotItem.properties;
+			endurance = 100;
+		}
+		break;
+		
+		case itemCategory.material:
+		{
+			if (_attributes != noone)
+				properties = _attributes[0];
+			else
+				properties = _slotItem.properties;
+		}
+	}
 }
 
-function slot_drop(_id, _itemCount, _dropX, _dropY, _collectCooldown, _scatter)
+/// Function creating a copy of the given slot.
+function slot_copy(_slot)
+{
+	var _newSlot = new Slot(_slot.id, _slot.itemCount, noone);
+	var _slotItem = id_get_item(_slot.id);
+	
+	switch (_slotItem.category)
+	{
+		case itemCategory.tool:
+		{
+			_newSlot.properties = _slot.properties;
+			_newSlot.endurance = _slot.endurance;
+		}
+		break;
+		
+		case itemCategory.material:
+		{
+			_newSlot.properties = _slot.properties;
+		}
+		break;
+	}
+	
+	//Return Copy of the Slot
+	return _newSlot;
+}
+
+
+//Function dropping a slot as an Item.
+function slot_drop(_slot, _dropX, _dropY, _collectCooldown, _scatter, _sendClientMessage)
 {
 	//Set Item Drop Properties
 	var _itemDropX = _dropX;
@@ -32,7 +81,7 @@ function slot_drop(_id, _itemCount, _dropX, _dropY, _collectCooldown, _scatter)
 			_objectId = obj_Server.objectIdCount ++;	//send a message to create an Item
 			var _serverBuffer = obj_Server.serverBuffer;
 			message_item_create(_serverBuffer, _objectId, _itemDropX, _itemDropY,
-								_id, _itemCount, _collectCooldown);
+								_slot, _collectCooldown);
 			with (obj_PlayerClient)
 				network_send_packet(clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
 		}
@@ -42,7 +91,7 @@ function slot_drop(_id, _itemCount, _dropX, _dropY, _collectCooldown, _scatter)
 		with (_droppedItem)	//set properties of the dropped item
 		{
 			collectCooldown = _collectCooldown;
-			itemSlot = new Slot(_id, _itemCount);
+			itemSlot = _slot;
 			objectId = _objectId;
 			
 			horizontalSpeed = _horizontalSpeed;
@@ -53,11 +102,11 @@ function slot_drop(_id, _itemCount, _dropX, _dropY, _collectCooldown, _scatter)
 	}
 	
 	//Send Message to the Server
-	else
+	else if (_sendClientMessage)
 	{
 		var _clientBuffer = obj_Client.clientBuffer;
 		var _clientSocket = obj_Client.client;
-		message_item_create(_clientBuffer, noone, _itemDropX, _itemDropY, _id, _itemCount, _collectCooldown);
+		message_item_create(_clientBuffer, noone, _itemDropX, _itemDropY, _slot, _collectCooldown);
 		network_send_packet(_clientSocket, _clientBuffer, buffer_tell(_clientBuffer));
 	}
 }

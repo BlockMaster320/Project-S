@@ -1,18 +1,22 @@
 //Draw Block Interaction
 if (!inventoryMenu)
 {
-	//Get Player's Center Position									// /*for testing only
+	//Get Player's Center Position									// for testing only
 	var _playerX = 0;
 	var _playerY = 0;
 	if (instance_exists(obj_PlayerLocal))
 	{
 		_playerX = obj_PlayerLocal.x + obj_PlayerLocal.sprite_width * 0.5;
 		_playerY = obj_PlayerLocal.y + obj_PlayerLocal.sprite_height * 0.5;
-	}																// */
+	}																// 
+	
+	
+	//Load the Input for Precise Cursor Position
+	scr_Input();
 
 	//Get Selected Block's Position
-	var _blockDrawX = (mouse_x div CELL_SIZE) * CELL_SIZE;
-	var _blockDrawY = (mouse_y div CELL_SIZE) * CELL_SIZE;
+	var _blockDrawX = floor(mouseX / CELL_SIZE) * CELL_SIZE;
+	var _blockDrawY = floor(mouseY / CELL_SIZE) * CELL_SIZE;
 
 	//Draw Block Selection
 	draw_set_alpha(0.05);
@@ -20,7 +24,7 @@ if (!inventoryMenu)
 	draw_set_alpha(1);
 
 	//Draw Mine Progress
-	var _progressFrame = floor((mineProgress / mineBlockEndurance) * 5);
+	var _progressFrame = floor((mineProgress / mineBlockPersistence) * 5);
 	draw_sprite_ext(spr_MineProgress, _progressFrame, _blockDrawX, _blockDrawY, 1, 1, 0, c_white, 1);
 
 	if (inRange)

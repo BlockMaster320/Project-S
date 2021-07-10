@@ -1,7 +1,7 @@
 //View Properties
 #macro VIEW view_camera[0]
-aspectRatio = 1;
-viewWidth = 400;
+aspectRatio = 9 / 16;
+viewWidth = 600;
 viewHeight = viewWidth * aspectRatio;
 
 //Wndow Properties

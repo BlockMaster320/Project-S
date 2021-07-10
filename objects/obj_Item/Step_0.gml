@@ -1,71 +1,70 @@
-//Apply Gravity && Collision
-if (!collectItem)
+//World Interaction
+if (active && !collectItem)
 {
+	//Apply Movement && Collision
 	movement(false, false);
 	gravity();
 	collision();
-}
-
-//Push the Item Out of a Block
-if (check_collision(id) && !collectItem)
-{
-	//Get Item's Corner Positions
-	var _gridLeftX = x div CELL_SIZE;
-	var _gridRightX = (x + sprite_get_width(spr_ItemMask) * 0.5) div CELL_SIZE;
-	var _gridTopY = y div CELL_SIZE;
-	var _gridBottomY = (y + sprite_get_height(spr_ItemMask) * 0.5) div CELL_SIZE;
 	
-	//Get the World Grid
-	var _worldGrid = obj_WorldManager.worldGrid;
-	
-	//Loop Through Near Horizontal && Vertical Bllocks
-	for (var _i = 0; _i < 3; _i ++)
+	if (touchingBlock[3] == true && verticalSpeed == 0)
 	{
-		//Check Blocks on the Left Side
-		var _gridLeftXClamped = clamp(_gridLeftX - _i, 0, ds_grid_width(_worldGrid) - 1);	//get the block
-		var _xLeftBlock1 = _worldGrid[# _gridLeftXClamped, _gridTopY];
-		var _xLeftBlock2 = _worldGrid[# _gridLeftXClamped, _gridBottomY];
-		
-		if (_xLeftBlock1 == 0 || _xLeftBlock2 == 0)	//check if the block is empty
-		{
-			while (check_collision(id)) x -= 1;
-			break;
-		}
-		
-		//Check Blocks on the Right Side
-		var _gridRightXClamped = clamp(_gridRightX + _i, 0, ds_grid_width(_worldGrid) - 1);	//get the block
-		var _xRightBlock1 = _worldGrid[# _gridRightXClamped, _gridTopY];
-		var _xRightBlock2 = _worldGrid[# _gridRightXClamped, _gridBottomY];
-		
-		if (_xRightBlock1 == 0 || _xRightBlock2 == 0)	//check if the block is empty
-		{
-			while (check_collision(id)) x += 1;
-			break;
-		}
-		
-		//Check Blocks Above the Item
-		var _gridTopYClamped = clamp(_gridTopY - _i, 0, ds_grid_height(_worldGrid) - 1);	//get the block
-		var _yTopBlock1 = _worldGrid[# _gridLeftX, _gridTopYClamped];
-		var _yTopBlock2 = _worldGrid[# _gridRightX, _gridTopYClamped];
-		
-		if (_yTopBlock1 == 0 || _yTopBlock2 == 0)	//check if the block is empty
-		{
-			while (check_collision(id)) y -= 1;
-			break;
-		}
-		
-		//Check Blocks Below the Item
-		var _gridBottomYClamped = clamp(_gridBottomY + _i, 0, ds_grid_height(_worldGrid) - 1);	//get the block
-		var _yBottomBlock1 = _worldGrid[# _gridLeftX, _gridBottomYClamped];
-		var _yBottomBlock2 = _worldGrid[# _gridRightX, _gridBottomYClamped];
-		
-		if (_yBottomBlock1 == 0 || _yBottomBlock2 == 0)	//check if the block is empty
-		{
-			while (check_collision(id)) y += 1;
-			break;
-		}
+		active = false;
 	}
-	if (check_collision(id)) y -= CELL_SIZE;	//push the block up if there's no free space in the other directions
+	
+	//Push the Item Out of a Block
+	if (check_collision(id))
+	{
+		//Get Item's Corner Positions
+		var _gridLeftX = floor(x / CELL_SIZE);
+		var _gridRightX = floor((x + sprite_get_width(spr_ItemMask) * 0.5) / CELL_SIZE);
+		var _gridTopY = floor(y / CELL_SIZE);
+		var _gridBottomY = floor((y + sprite_get_height(spr_ItemMask) * 0.5) / CELL_SIZE);
+	
+		//Loop Through Near Horizontal && Vertical Bllocks
+		for (var _i = 0; _i < 3; _i ++)
+		{
+			//Check Blocks on the Left Side
+			var _xLeftBlock1 = block_get(_gridLeftX - _i, _gridTopY, true);	//get the block
+			var _xLeftBlock2 = block_get(_gridLeftX - _i, _gridBottomY, true);
+		
+			if (_xLeftBlock1 == 0 || _xLeftBlock2 == 0)	//check if the block is empty
+			{
+				while (check_collision(id)) x -= 1;
+				break;
+			}
+		
+			//Check Blocks on the Right Side
+			var _xRightBlock1 = block_get(_gridRightX + _i, _gridTopY, true);	//get the block
+			var _xRightBlock2 = block_get(_gridRightX + _i, _gridBottomY, true);
+		
+			if (_xRightBlock1 == 0 || _xRightBlock2 == 0)	//check if the block is empty
+			{
+				while (check_collision(id)) x += 1;
+				break;
+			}
+		
+			//Check Blocks Above the Item
+			var _yTopBlock1 = block_get(_gridLeftX, _gridTopY - _i, true);	//get the block
+			var _yTopBlock2 = block_get(_gridRightX, _gridTopY - _i, true);
+		
+			if (_yTopBlock1 == 0 || _yTopBlock2 == 0)	//check if the block is empty
+			{
+				while (check_collision(id)) y -= 1;
+				break;
+			}
+		
+			//Check Blocks Below the Item
+			var _yBottomBlock1 = block_get(_gridLeftX, _gridBottomY + _i, true);	//get the block
+			var _yBottomBlock2 = block_get(_gridRightX, _gridBottomY + _i, true);
+		
+			if (_yBottomBlock1 == 0 || _yBottomBlock2 == 0)	//check if the block is empty
+			{
+				while (check_collision(id)) y += 1;
+				break;
+			}
+		}
+		if (check_collision(id)) y -= CELL_SIZE;	//push the block up if there's no free space in the other directions
+	}
 }
 
 //Approach a Player Collecting the Item
@@ -97,7 +96,7 @@ if (collectItem)
 		else if (_objectIndex == obj_PlayerClient)
 		{
 			var _serverBuffer = obj_Server.serverBuffer;
-			message_item_give(_serverBuffer, itemSlot.id, itemSlot.itemCount);
+			message_item_give(_serverBuffer, itemSlot);
 			network_send_packet(approachObject.clientSocket, _serverBuffer, buffer_tell(_serverBuffer));
 		}
 		
@@ -113,7 +112,7 @@ if (collectItem)
 }
 
 //Stack Itself with Near Items of the Same ID
-if (!collectItem && stackCooldown <= 0)
+if (active && !collectItem && stackCooldown <= 0)
 {
 	for (var _i = 0; _i < instance_number(obj_Item); _i ++)	//loop trought all the items
 	{

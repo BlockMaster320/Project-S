@@ -1,16 +1,16 @@
 //Game Saving && Loading
-if (keyboard_check_pressed(ord("S")) && obj_Menu.inGame)
-	world_save(worldFile);
+/*if (keyboard_check_pressed(ord("S")) && obj_Menu.inGame)
+	world_save(worldFile);*/
 
 
 //TESTING//
 if (keyboard_check_pressed(ord("R")))	//restart the game
 	game_restart();
 
-if (/*keyboard_check_pressed(ord("F"))*/false)	//code speed testing
+if (keyboard_check_pressed(ord("F")))	//code speed testing
 {
 	var _timeSum = 0;
-	var _timeTestNumber = 1;
+	var _timeTestNumber = 50;
 	
 	repeat (_timeTestNumber)
 	{
@@ -18,7 +18,7 @@ if (/*keyboard_check_pressed(ord("F"))*/false)	//code speed testing
 		
 		repeat (1)
 		{
-			world_save(worldFile);
+			var _testtt = block_pos_get(0, 0);
 		}
 		
 		var _timeEnd = get_timer();

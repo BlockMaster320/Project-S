@@ -24,7 +24,8 @@ if (instance_exists(obj_PlayerLocal))
 }
 
 //Clamp && Set the Camera's Position
+/*
 _x = clamp(_x, 0, obj_WorldManager.worldWidth * CELL_SIZE - viewWidth);
-_y = clamp(_y, 0, obj_WorldManager.worldHeight * CELL_SIZE - viewHeight);
+_y = clamp(_y, 0, obj_WorldManager.worldHeight * CELL_SIZE - viewHeight);*/
 camera_set_view_pos(VIEW, _x + freeX, _y + freeY);
 camera_set_view_size(VIEW, viewWidth * freeSize, viewHeight * freeSize);

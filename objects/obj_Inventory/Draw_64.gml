@@ -14,48 +14,34 @@ draw_set_font(fnt_Inventory);
 //Draw the Inventory Wheel
 if (inventoryWheel)
 {
-	//Get Inventory Grid Properties
-	var _inventoryWidth = ds_grid_width(inventoryGrid);
-	var _inventoryHeight = ds_grid_height(inventoryGrid);
-	var _initialPosition = selectedPosition - floor(wheelSlots * 0.5);
-	
 	//Set Slot && item Size
 	var _scale = scale * 0.7;
 	var _slotSize = SLOT_SIZE * _scale;
 	var _itemSize = ITEM_SIZE * _scale;
 	
 	//Draw the Inventory Wheel
-	var _wheelCenterX = wheelCenterX * _guiWidth;
-	var _wheelCenterY = wheelCenterY * _guiHeight;
+	var _wheelPrimaryX = wheelX * _guiWidth;	//primary inventory wheel
+	var _wheelPrimaryY = wheelY * _guiHeight;
+	slot_wheel_draw(inventoryGrid, chosenPosition[0], _wheelPrimaryX, _wheelPrimaryY,
+					50, 50, wheelSlots, _itemSize, _scale);
 	
-	draw_sprite_ext(spr_SlotFrame, 0, _wheelCenterX - _scale * 50 - (22 * _scale) * 0.5,
-					_wheelCenterY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
-	
-	for (var _i = 0; _i < wheelSlots; _i ++)	//draw each slot of the inventory wheel
-	{
-		var _angle = 90 + (180 / (wheelSlots - 1)) * _i;	//get draw x && y
-		var _drawX = _wheelCenterX + lengthdir_x(_scale * 50, _angle) - _itemSize * 0.5;
-		var _drawY = _wheelCenterY + lengthdir_y(_scale * 50, _angle) - _itemSize * 0.5;
-		
-		/*draw_circle_colour(wheelCenterX + lengthdir_x(_scale * 50, _angle),
-						   wheelCenterY + lengthdir_y(_scale * 50, _angle), 1, c_red, c_red, false);*/
-	
-		var _position = _initialPosition + _i;	//get && draw the slot
-		var _slot = position_slot_get(inventoryGrid, _position);
-		slot_draw(_slot, _drawX, _drawY, _itemSize, _scale);
-	}
+	var _wheelSecondaryX = (wheelX + 0.005) * _guiWidth;	//secondary inventory wheel
+	var _wheelSecondaryY = _wheelPrimaryY;
+	slot_wheel_draw(toolGrid, chosenPosition[1], _wheelSecondaryX, _wheelSecondaryY,
+					15, 23, 3, _itemSize, _scale);
 }
 
 //Scroll Through the Inventory Wheel
 if (!inventoryMenu)
 {
-	if (mouseWheelDown) selectedPosition += 1;
-	if (mouseWheelUp) selectedPosition -= 1;
+	if (mouseWheelDown) chosenPosition[keyModifier2] += 1;	//keyModifier2: 0 - primary chosen position, 1 - secondary chosen position
+	if (mouseWheelUp) chosenPosition[keyModifier2] -= 1;
 	if (mouseWheelDown || mouseWheelUp) mineProgress = 0;	//reset mine progress
 }
 
 //Update the Selected Slot
-selectedSlot = position_slot_get(inventoryGrid, selectedPosition);
+chosenSlot[0] = position_slot_get(inventoryGrid, chosenPosition[0]);
+chosenSlot[1] = position_slot_get(toolGrid, chosenPosition[1]);
 
 //INVENTORY MENU//
 //Open/Close the Inventory Menu
@@ -93,6 +79,9 @@ if (inventoryMenu)
 	var _slotSize = SLOT_SIZE * scale;
 	var _itemSize = ITEM_SIZE * scale;
 	
+	//Set Draw Offsets
+	var _sectionOffset = _slotSize * 0.7;
+	
 	//Set Mouse Posiiton on Mouse Click
 	mouseX = window_mouse_get_x();
 	mouseY = window_mouse_get_y();
@@ -124,22 +113,22 @@ if (inventoryMenu)
 	//Check Wheter the Cursor is Within the Area of the Inventory Section
 	var _areaInventory = cursor_in_section(_inventoryX, _inventoryY, _inventoryWidth, _inventoryHeight, _slotSize, _itemSize);
 	
-	//Change selectedPosition Inside the Inventory
+	//Change chosenPosition Inside the Inventory
 	if (_areaInventory && keyModifier2)
 	{
-		if (mouseWheelDown) selectedPosition += 1;
-		if (mouseWheelUp) selectedPosition -= 1;
+		if (mouseWheelDown) chosenPosition[0] += 1;
+		if (mouseWheelUp) chosenPosition[0] -= 1;
 	}
 	
+	//Tool Grid
+	var _toolX = _inventoryX - _sectionOffset - _slotSize;	//set x && y for drawing the tool grid
+	var _toolY = _inventoryY;
+	inventory_section(toolGrid, 0, _toolX, _toolY, noone, _itemSize, _slotSize, false, false);	//draw && interact with toolGrid
+	
 	//Armor Grid
-	var _armorX = _inventoryX - _slotSize * 1.7;	//set x && y top-left origin for drawing the armor
+	var _armorX = _toolX - _sectionOffset - _slotSize * ds_grid_width(armorGrid);	//set x && y top-left origin for drawing the armor
 	var _armorY = _inventoryY;
 	inventory_section(armorGrid, 0, _armorX, _armorY, noone, _itemSize, _slotSize, false, false);	//draw && interact with armorGrid
-	
-	//Tool Slot
-	var _toolX = _armorX;	//set x && y for drawing the item slot
-	var _toolY = _armorY + _slotSize * ds_grid_height(armorGrid);
-	inventory_section(toolGrid, 0, _toolX, _toolY, noone, _itemSize, _slotSize, false, false);	//draw && interact with toolGrid
 	
 	//Get the craftingGrid Updated Width
 	var _craftingWidth = ds_grid_width(craftingGrid);
@@ -161,17 +150,18 @@ if (inventoryMenu)
 				{
 					var _dropX = obj_Player.x + sprite_get_width(spr_Player) * 0.5;
 					var _dropY = obj_Player.y + sprite_get_height(spr_Player) * 0.5;
-					slot_drop(_slot.id, _slot.itemCount, _dropX, _dropY, 60, false);
+					slot_drop(_slot, _dropX, _dropY, 60, false, true);
 				}
 			}
 		}
 		
 		//Update the Crafting Grid Size
 		ds_grid_resize(craftingGrid, _craftingWidthUpdated, 2);
+		crafting_update_products(craftingGrid);
 	}
 	
 	//Crafting Grid
-	var _craftingGridX = _inventoryX + (_inventoryWidth + 0.7) * _slotSize;	//set x && y top-left origin for drawing the crafting section
+	var _craftingGridX = _inventoryX + _sectionOffset + (_inventoryWidth) * _slotSize;	//set x && y top-left origin for drawing the crafting section
 	var _craftingGridY = _inventoryY;
 	inventory_section(craftingGrid, 0, _craftingGridX, _craftingGridY, noone, _itemSize, _slotSize, true, false);	//draw && interact with CraftingGrid && craftingProducts
 	
@@ -342,7 +332,7 @@ if (inventoryMenu)
 		var _stationSpriteWidth = sprite_get_width(spr_Test1) * 0.5 * _scale;
 		var _drawStartX = _guiWidth * 0.5 - (_stationSpriteWidth + _stationSpacing)
 						  * (_stationListSize * 0.5) + _stationSpacing * 0.5;
-		var _drawStartY = _stationY - 10 * _scale;
+		var _drawStartY = _stationY - 30 * _scale;
 		
 		//Draw the Station Selection Bar
 		for (var _i = 0; _i < _stationListSize; _i ++)
@@ -373,12 +363,16 @@ if (inventoryMenu)
 		}
 	}
 	
-	//Held Slot
+	//Draw the Held Slot
 	if (heldSlot != 0)
 	{
 		if (heldSlot.itemCount != 0)
-			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, _itemSize, scale);	//draw the held slot
+			slot_draw(heldSlot, mouseX - _itemSize * 0.5, mouseY - _itemSize * 0.5, false, _itemSize, scale);	//draw the held slot
 	}
+	
+	//Draw the Selected Slot's Info Table
+	slot_draw_info(selectedSlot[0], selectedSlot[1], selectedSlot[2]);
+	selectedSlot = [noone, 0, 0];
 	
 	draw_line_width_colour(_guiWidth * 0.5, 0, _guiWidth * 0.5, _guiHeight, 1, c_blue, c_blue);	//draw some lines for testing
 	draw_line_width_colour(0, _guiHeight * 0.5, _guiWidth, _guiHeight * 0.5, 1, c_red, c_red);

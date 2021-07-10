@@ -23,7 +23,7 @@ function inventory_section(_slotSet, _type, _x, _y, _station, _itemSize, _slotSi
 					draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 					
 					var _slot = _slotSet[# _c, _r];
-					slot_draw(_slot, _drawX, _drawY, _itemSize, scale);	//draw the slot
+					slot_draw(_slot, _drawX, _drawY, true, _itemSize, scale);	//draw the slot
 					if (_r == _rSelected && _c == _cSelected)
 						slot_interact(_drawX, _drawY, _slotSet, _c, _r, _station, _itemSize, _slotSize, _updateCrafting, _takeOnly);	//interact with the slot
 				}
@@ -37,13 +37,14 @@ function inventory_section(_slotSet, _type, _x, _y, _station, _itemSize, _slotSi
 			var _lastSlotIndex = min(craftingProductsPosition * 2 + craftingProductsLength * 2, ds_list_size(_slotSet));
 			for (var _i = craftingProductsPosition * 2; _i < _lastSlotIndex; _i ++)	//draw the crafting products
 			{
-				var _drawX = _x + _slotSize * floor(_i * 0.5);
-				var _drawY = _y + _slotSize * (_i % 2 == 1);
+				var _column = _i - craftingProductsPosition * 2;
+				var _drawX = _x + _slotSize * floor(_column * 0.5);
+				var _drawY = _y + _slotSize * (_column % 2 == 1);
 				
 				draw_sprite_ext(spr_Block, 0, _drawX, _drawY, scale, scale, 0, c_white, 0.5);
 				
 				var _slot = _slotSet[| _i];
-				slot_draw(_slot, _drawX, _drawY, _itemSize, scale);
+				slot_draw(_slot, _drawX, _drawY, true, _itemSize, scale);
 				slot_interact(_drawX, _drawY, _slotSet, _i, noone, noone, _itemSize, _slotSize, _updateCrafting, _takeOnly);
 			}
 		}
@@ -52,19 +53,100 @@ function inventory_section(_slotSet, _type, _x, _y, _station, _itemSize, _slotSi
 }
 
 /// Function drawing a section slot.
-function slot_draw(_slot, _x, _y, _itemSize, _scale)
-{						
-	draw_sprite_ext(spr_Block, 0, _x, _y, _scale, _scale, 0, c_white, 0.5);
+function slot_draw(_slot, _x, _y, _drawBackground, _itemSize, _scale)
+{
+	//Set Draw Properties
+	draw_set_halign(fa_right);
+	draw_set_valign(fa_bottom);
+	
+	if (_drawBackground)	//draw the slot background
+		draw_sprite_ext(spr_Block, 0, _x, _y, _scale, _scale, 0, c_white, 0.5);
 	if (_slot != 0)	//draw the item
 	{
 		draw_sprite_ext(_slot.sprite, 0, _x, _y, _scale, _scale, 0, c_white, 1);
-		draw_text_transformed_colour(_x + _itemSize * 1.1, _y + _itemSize * 1.15, _slot.itemCount, _scale * 0.75, _scale * 0.75,
-									 0, c_white, c_white, c_white, c_white, 1);
+		var _slotItem = id_get_item(_slot.id);
+		if (_slotItem.category == itemCategory.tool)
+		{
+			//Draw Slot's Endurance Represented by a Circle Sector
+			if (variable_struct_exists(_slot, "endurance"))
+			{
+				var _value = _slot.endurance / 100;
+				draw_circle_sector(_x, _y, 3 * _scale, _value, 10);
+			}
+		}
+		else
+		{
+			draw_text_transformed_colour(_x + _itemSize * 1.1, _y + _itemSize * 1.15, _slot.itemCount, _scale * 0.75, _scale * 0.75,
+										 0, c_white, c_white, c_white, c_white, 1);
+		}
+	}
+}
+
+/// Function for drawing an info table of a given slot.
+function slot_draw_info(_slot, _x, _y)
+{
+	//Return If the Slot Is 0
+	if (_slot == 0 || _slot == noone) return;
+	
+	//Set the Info Table's Content
+	var _infoString = "";
+	var _slotItem = id_get_item(_slot.id);
+	_infoString += _slotItem.name;
+	
+	if (variable_struct_exists(_slot, "properties"))
+	{
+		var _properties = _slot.properties;
+		if (_properties[property.power] != 0)
+			_infoString += "\npower: " + string(_properties[property.power]);
+		if (_properties[property.durability] != 0)
+			_infoString += "\ndurability: " + string(_properties[property.durability]);
+		if (_properties[property.hardness] != 0)
+			_infoString += "\nhardness: " + string(_properties[property.hardness]);
+	}
+	
+	//Set Info Table's Draw Properties
+	var _textPadding = [4, 7, 4, 7];	//space between the text && the border from - left, rigth, top, bottom
+	var _verticalOffset = 10;
+	var _drawX1 = _x;
+	var _drawX2 = _drawX1 + string_width(_infoString) + _textPadding[0] + _textPadding[1];
+	var _drawY2 = _y - _verticalOffset;
+	var _drawY1 = _drawY2 - string_height(_infoString) - _textPadding[2] - _textPadding[3];
+	
+	//Draw the Info Table
+	draw_rectangle_colour(_drawX1 + 4, _drawY1 + 4, _drawX2 + 4, _drawY2 + 4, c_black, c_black, c_black, c_black, false);
+	draw_rectangle_colour(_drawX1, _drawY1, _drawX2, _drawY2, c_dkgrey, c_dkgrey, c_dkgrey, c_dkgrey, false);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_top);
+	draw_text_transformed_colour(_drawX1 + _textPadding[0], _drawY1 + _textPadding[2], _infoString,
+								 1, 1, 0, c_white, c_white, c_white, c_white, 1);
+}
+
+function slot_wheel_draw(_slotSet, _chosenPosition, _wheelX, _wheelY, _radiusX, _radiusY, _wheelSlots, _itemSize, _scale)
+{
+	//Get Initial Position
+	var _initialPosition = _chosenPosition - floor(_wheelSlots * 0.5);
+	
+	draw_sprite_ext(spr_SlotFrame, 0, _wheelX - _scale * _radiusX - (22 * _scale) * 0.5,
+					_wheelY - (22 * _scale) * 0.5, _scale, _scale, 0, c_white, 1);
+	
+	//Draw Each Slot of the Inventory Wheel
+	for (var _i = 0; _i < _wheelSlots; _i ++)
+	{
+		var _angle = 90 + (180 / (_wheelSlots - 1)) * _i;	//get draw x && y
+		var _drawX = _wheelX + lengthdir_x(_scale * _radiusX, _angle) - _itemSize * 0.5;
+		var _drawY = _wheelY + lengthdir_y(_scale * _radiusY, _angle) - _itemSize * 0.5;
+		
+		/*draw_circle_colour(wheelCenterX + lengthdir_x(_scale * 50, _angle),
+						   wheelCenterY + lengthdir_y(_scale * 50, _angle), 1, c_red, c_red, false);*/
+	
+		var _position = _initialPosition + _i;	//get && draw the slot
+		var _slot = position_slot_get(_slotSet, _position);
+		slot_draw(_slot, _drawX, _drawY, true, _itemSize, _scale);
 	}
 }
 
 /// Function checking for an interaction with a section slot.
-/// variables needed: heldSlot, heldSlotItemCount, splitList, mouseX, mouseY,
+/// variables needed: heldSlot, heldSlotItemCount, chosenSlot, splitList, mouseX, mouseY
 /// buttonLeft, buttonLeftPressed, buttonLeftReleased
 function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize, _updateCrafting, _takeOnly)
 {
@@ -75,6 +157,7 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 	{
 		//Get the Slot We're Interacting With
 		var _slot = slot_get(_slotSet, _i, _j);
+		selectedSlot = [_slot, _x, _y];
 		
 		//Highlight the Slot
 		draw_set_alpha(0.5);
@@ -100,7 +183,7 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 				if (_button == 1 && !_takeOnly)	//cluster slots of the same ID to the selected slot
 					slot_cluster(_slotSet, _i, _j, _station);
 				
-				if (_button == - 1)	//move the selectedSlot to the selectedSection (slotSet)
+				if (_button == - 1)	//move the chosenSlot to the selectedSection (slotSet)
 				{
 					var _itemCount = _slot.itemCount;
 					slot_move(_slotSet, _i, _j, _station);
@@ -108,7 +191,7 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 					if (_takeOnly)	//update crafting resources
 					{
 						var _itemCountDiferrence = _itemCount - _slot.itemCount;
-						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _itemCountDiferrence);
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot, _itemCountDiferrence);
 					}
 				}
 			}
@@ -138,7 +221,7 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 						if (_slot.itemCount == 0)
 							slot_set(_slotSet, _i, _j, 0, _station);
 						
-						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _itemsToAdd);
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot, _itemsToAdd);
 					}
 					swapSlots = false;
 				}
@@ -148,12 +231,15 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 			{
 				if (_button == 1)	//take all the items on left click
 				{
-					heldSlot = new Slot(_slot.id, _slot.itemCount);
+					if (variable_struct_exists(_slot, "endurance"))
+						_slot.endurance -= 1;
+					
+					heldSlot = _slot;
 					slot_set(_slotSet, _i, _j, 0, _station);
 					swapSlots = false;
 					
 					if (_takeOnly)
-						crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _slot.itemCount);
+						crafting_update_resources(obj_Inventory.craftingGrid, _slot, _slot.itemCount);
 				}
 				else	//right click
 				{
@@ -162,7 +248,8 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 						if (_slot.itemCount != 1)
 						{
 							var _itemPart = round(_slot.itemCount / 2);
-							heldSlot = new Slot(_slot.id, _itemPart);
+							heldSlot = slot_copy(_slot);
+							heldSlot.itemCount = _itemPart;
 							_slot.itemCount -= _itemPart;
 							station_slot_update(_station, _i, _j);
 						}
@@ -173,12 +260,13 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 						if (!keyModifier1)
 						{
 							var _craftAmount = id_get_item(_slot.id).craftAmount;
-							heldSlot = new Slot(_slot.id, _craftAmount);
+							heldSlot = slot_copy(_slot);
+							heldSlot.itemCount = _craftAmount;
 							_slot.itemCount -= _craftAmount;
 							if (_slot.itemCount == 0)
 								slot_set(_slotSet, _i, _j, 0, _station);
 							
-							crafting_update_resources(obj_Inventory.craftingGrid, _slot.id, _craftAmount);
+							crafting_update_resources(obj_Inventory.craftingGrid, _slot, _craftAmount);
 						}
 					}
 				}
@@ -197,7 +285,9 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 			{
 				if (_slot == 0)	//set the slot with no item to the held item
 				{
-					slot_set(_slotSet, _i, _j, new Slot(heldSlot.id, 0), noone);
+					var _newSlot = slot_copy(heldSlot);
+					_newSlot.itemCount = 0;
+					slot_set(_slotSet, _i, _j,_newSlot, noone);
 					_slot = slot_get(_slotSet, _i, _j);
 				}
 				
@@ -247,7 +337,7 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 				else if (_slot != 0 && ds_list_size(splitList) == 0 && _button != - 1 && swapSlots)	//swap the item with the held one
 				{
 					var _heldSlotTemp = heldSlot;
-					heldSlot = new Slot(_slot.id, _slot.itemCount);
+					heldSlot = _slot;
 					slot_set(_slotSet, _i, _j, _heldSlotTemp, _station);
 				}
 				
@@ -269,7 +359,8 @@ function slot_interact(_x, _y, _slotSet, _i, _j, _station, _itemSize, _slotSize,
 				//Set the Receiver to the Donor's Item If It's 0
 				if (_slotReceiver == 0)
 				{
-					var _newSlot = new Slot(_slotDonor.id, 0);
+					var _newSlot = slot_copy(_slotDonor);
+					_newSlot.itemCount = 0;
 					if (_slotReceiver == heldSlot)	//if heldslot is the receiver
 					{
 						heldSlot = _newSlot;
@@ -371,7 +462,7 @@ function slotSet_add_slot(_slotSet, _addedSlot, _station)
 	//Add the Added Slot's Items into an Empty Slot
 	if (_rEmptySlot != noone)
 	{
-		var _newSlot = new Slot(_addedSlot.id, _addedSlot.itemCount);
+		var _newSlot = slot_copy(_addedSlot);
 		slot_set(_slotSet, _cEmptySlot, _rEmptySlot, _newSlot, _station);
 		_addedSlot.itemCount = 0;
 	}

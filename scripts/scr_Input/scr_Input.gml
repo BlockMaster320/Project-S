@@ -21,3 +21,10 @@ buttonRightReleased = mouse_check_button_released(mb_right);
 
 mouseWheelDown = mouse_wheel_down();
 mouseWheelUp = mouse_wheel_up();
+
+//Precise Cursor Position
+if (instance_exists(obj_Camera))
+{
+	mouseX = camera_get_view_x(VIEW) + (camera_get_view_width(VIEW) / window_get_width()) * window_mouse_get_x();
+	mouseY = camera_get_view_y(VIEW) + (camera_get_view_height(VIEW) / window_get_height()) * window_mouse_get_y();
+}

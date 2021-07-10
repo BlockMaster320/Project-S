@@ -1,5 +1,4 @@
 /// Function for drawing && interacting with a button.
-
 function button(_x1, _y1, _x2, _y2, _text, _isAbled)
 {
 	//Set Return Value
@@ -41,7 +40,6 @@ function button(_x1, _y1, _x2, _y2, _text, _isAbled)
 
 /// Function creating a button which changes the menuState.
 /// variables needed: menuState, menuStateStack
-
 function button_redirect(_x1, _y1, _x2, _y2, _text, _isAbled, _menuState)
 {
 	if (button(_x1, _y1, _x2, _y2, _text, _isAbled))
@@ -62,7 +60,6 @@ function button_redirect(_x1, _y1, _x2, _y2, _text, _isAbled, _menuState)
 }
 
 /// Function highlighting a button.
-
 function button_highlight(_x1, _y1, _x2, _y2)
 {
 	draw_rectangle_colour(_x1, _y1, _x2, _y2, c_white, c_white, c_white, c_white, true);
@@ -71,6 +68,7 @@ function button_highlight(_x1, _y1, _x2, _y2)
 	draw_set_alpha(1);
 }
 
+/// Function drawing an arrow button.
 function arrow_button(_x, _y, _direction, _isAbled, _scale)
 {
 	//Set Return Value
@@ -120,7 +118,6 @@ function arrow_button(_x, _y, _direction, _isAbled, _scale)
 
 /// Function for drawing && interacting with a text field.
 /// variables needed: textField, textFieldArray, textCursorPosition, charSet
-
 function text_field(_x1, _y1, _x2, _y2, _isAbled, _index)
 {
 	//Check Wheter the Field is Clickable
@@ -235,13 +232,11 @@ function text_field(_x1, _y1, _x2, _y2, _isAbled, _index)
 		draw_rectangle_colour(_x1, _y1, _x2, _y2, c_dkgray, c_dkgray, c_dkgray, c_dkgray, false);	//draw not abled text field box
 		draw_set_alpha(1);
 	}
-	
 }
 
 /// Function for deactivating a text field.
 /// variables needed: textFieldArray, textFieldPassiveArray, textField, 
 ///	textCursorPosition, textEdgeLeft, textEdgeRight
-
 function text_field_deactivate(_index, _textFieldWidth)
 {
 	//Get the Part of the String That Fits Into the Text Field

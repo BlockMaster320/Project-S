@@ -16,9 +16,12 @@ enum messages
 {
 	worldData,
 	clientData,
+	clientConnect,
 	clientDisconnect,
 	inventoryData,
 	playerCreate,
+	
+	chunkGet,
 	
 	itemCreate,
 	itemChange,
@@ -41,13 +44,22 @@ enum messages
 enum itemCategory
 {
 	block,
-	station
+	station,
+	tool,
+	material
 }
 
 enum itemSubCategory
 {
 	storage,	//stations
 	crafting
+}
+
+enum property
+{
+	power,
+	durability,
+	hardness
 }
 
 //Inventory
@@ -64,9 +76,13 @@ enum inventorySection
 #macro STATION_SEARCH_SIZE 3
 
 
-#macro ITEM_NUMBER 6
+#macro ITEM_NUMBER 8
 
+//World Generation
 #macro CELL_SIZE 16
+#macro CHUNK_SIZE 16
+#macro CHUNK_GRID_SIZE 5
+#macro SEA_LEVEL 0
 
 #macro CURSOR_BLINK_SPEED 35
 

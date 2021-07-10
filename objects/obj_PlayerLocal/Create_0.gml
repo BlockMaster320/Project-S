@@ -16,10 +16,10 @@ onGroundTimer = 0;	//time from ground touch
 delayedJumpTimer = 0;	//time from the last jump key press
 
 //Collision
-touchingBlock[3] = false;	//wheter the object is touching a block from: 0 - left; 1 - top; 2 - right; 3 - bottom
-							//the object has to be moving to the block (standing next to a block with speed of 0 isn't touching)
+touchingBlock = array_create(4, false);	//wheter the object is touching a block from: 0 - left; 1 - top; 2 - right; 3 - bottom
+										//the object has to be moving to the block (standing next to a block with speed of 0 isn't touching)
 //Inventory References
-playerSelectedPosition = 0;
+playerChosenPosition = [0, 0];
 playerInventoryGrid = obj_Inventory.inventoryGrid;
 playerArmorGrid = obj_Inventory.armorGrid;
 playerToolGrid = obj_Inventory.toolGrid;
