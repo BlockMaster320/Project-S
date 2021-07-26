@@ -39,12 +39,13 @@ function world_save(_file)
 			worldSeed : obj_WorldManager.worldSeed,
 			playerStruct : noone,
 			worldStruct : {},
+			worldMetadataStruct : {},
 			itemArray : noone
 		};
 		_playerStruct = {};
 	}
 	
-	//Save the worldStruct
+	//Save the worldStruct && worldMetadataStruct
 	var _chunkStructArray = variable_struct_get_names(obj_WorldManager.chunkStruct);
 	for (var _i = 0; _i < array_length(_chunkStructArray); _i ++)	//save the chunks in the chunkStruct to the worldStruct
 	{
@@ -53,7 +54,8 @@ function world_save(_file)
 		chunk_save(int64(string_copy(_chunkPosString, 1, _commaPos - 1)),
 				   int64(string_copy(_chunkPosString, _commaPos + 1, string_length(_chunkPosString))), noone);
 	}
-	_mainStruct.worldStruct = obj_WorldManager.worldStruct;
+	variable_struct_set(_mainStruct, "worldStruct", obj_WorldManager.worldStruct);
+	variable_struct_set(_mainStruct, "worldMetadataStruct", obj_WorldManager.worldMetadataStruct);
 	
 	//Save the Players && Their Inventories to a Struct
 	obj_PlayerLocal.playerChosenPosition = obj_Inventory.chosenPosition;
@@ -100,10 +102,11 @@ function world_load(_file)
 		obj_WorldManager.worldSeed = _worldSeed;
 		obj_WorldManager.generationSeed = get_generation_seed(_worldSeed);
 		
-		//Load the worldStruct from the Save File
+		//Load the worldStruct && worldMetadataStruct from the Save File
 		var _worldFile = _file;
 		var _mainStruct = json_parse(json_string_load(_worldFile));
 		obj_WorldManager.worldStruct = _mainStruct.worldStruct;
+		obj_WorldManager.worldMetadataStruct = _mainStruct.worldMetadataStruct;
 		
 		//Instantiate Loaded Local Player
 		with (obj_Player) instance_destroy();	//destroy all existing players
@@ -183,7 +186,7 @@ function world_create(_worldName)
 	instance_activate_layer("WorldManagers");
 	
 	//Generate a New World && Set Its Properties
-	var _worldSeed = /*irandom(65536)*/1203;
+	var _worldSeed = /*irandom(65536)*/1256;
 	var _generationSeed = get_generation_seed(_worldSeed);
 	
 	with (obj_WorldManager)	//set the new world properties in the WorldManager
@@ -193,7 +196,7 @@ function world_create(_worldName)
 	}
 	
 	//Spawn the Player
-	instance_create_layer(CELL_SIZE * 5, - CELL_SIZE * 25, "Players", obj_PlayerLocal);
+	instance_create_layer(CELL_SIZE * 5, - CELL_SIZE * 20, "Players", obj_PlayerLocal);
 	
 	//Save the New World to a File
 	obj_GameManager.worldFile = _worldFile;
@@ -231,6 +234,7 @@ function world_clear()
 	{
 		chunkStruct = {};
 		worldStruct = {};
+		worldMetadataStruct = {};
 		chunkOrigin = [0, 0];
 		playerChunk = [0, 0];
 		playerChunkPrevious = [0, 0];

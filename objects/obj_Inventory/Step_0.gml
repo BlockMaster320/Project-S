@@ -215,6 +215,9 @@ if (buttonRightPressed && inRange && _placeSlot != 0 && _selectedBlock == 0 && !
 				//Create a Local Block
 				block_set(_blockGridX, _blockGridY, new Block(_placeSlot.id));
 				block_tile(_blockGridX, _blockGridY, true);
+				
+				//Activate Nearby Items
+				item_activate(_blockCenterX, _blockCenterY - CELL_SIZE * 0.5);
 			}
 		
 			//Send a Message to Create the Block to the Server

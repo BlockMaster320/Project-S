@@ -4,7 +4,7 @@ function random_value(_x, _y)
 	return abs(frac(sin(dot_product(_x, _y, 12.9898, 78.233)) * 43758.5453));
 }
 
-/// Function returning a random value (0. - 1.) based on given vec2 value && given generation seed.
+/// Function returning a random value based on given vec2 value && given generation seed.
 function random_seed_value(_x, _y, _generationSeed)
 {
 	return floor(abs(frac(sin(dot_product(_x, _y, 12.9898, 78.233)) * 43758.5453)) * 99999 * _generationSeed);

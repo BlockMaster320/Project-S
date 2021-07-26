@@ -27,7 +27,6 @@ function noise_perlin(_x, _y, _frequency, _octaves, _lacunarity, _persistence, _
 		random_set_seed(random_seed_value(_cellX + 1, _cellY + 1, _generationSeed));
 		var _gradientVector4 = [choose(- 1, 1), choose(- 1, 1)];
 		
-		
 		//Get the Distance Vectors of the Point (Vectors from the Point to the Grid Points)
 		var _distanceVector1 = [_pointX, - _pointY];
 		var _distanceVector2 = [- (1 - _pointX ), - _pointY];
@@ -59,7 +58,7 @@ function noise_perlin(_x, _y, _frequency, _octaves, _lacunarity, _persistence, _
 
 /// Function returning "Spaghetti Noise" value for the given vec2 value.
 
-function noise_spaghetti(_x, _y, _frequency, _octaves, _lacunarity, _persistence)
+function noise_spaghetti(_x, _y, _frequency, _octaves, _lacunarity, _persistence, _generationSeed)
 {
 	var _finalValue = 0;
 	var _amplitude = 1;
@@ -74,18 +73,17 @@ function noise_spaghetti(_x, _y, _frequency, _octaves, _lacunarity, _persistence
 		var _pointY = frac(_y * _frequency);
 		
 		//Get the Gradient Vectors of the 4 Nearest Grid Points
-		random_set_seed(floor(random_value(_cellX, _cellY) * 99999));
-		var _gradientVector1 = [choose(- 1, 1), choose(- 1, 1)];
+		random_set_seed(random_seed_value(_cellX, _cellY, _generationSeed));
+		var _gradientVector1 = [choose(- 1, 0, 1), choose(- 1, 1)];
 		
-		random_set_seed(floor(random_value(_cellX + 1, _cellY) * 99999));
-		var _gradientVector2 = [choose(- 1, 1), choose(- 1, 1)];
+		random_set_seed(random_seed_value(_cellX + 1, _cellY, _generationSeed));
+		var _gradientVector2 = [choose(- 1, 0, 1), choose(- 1, 1)];
 		
-		random_set_seed(floor(random_value(_cellX, _cellY + 1) * 99999));
-		var _gradientVector3 = [choose(- 1, 1), choose(- 1, 1)];
+		random_set_seed(random_seed_value(_cellX, _cellY + 1, _generationSeed));
+		var _gradientVector3 = [choose(- 1, 0, 1), choose(- 1, 1)];
 		
-		random_set_seed(floor(random_value(_cellX + 1, _cellY + 1) * 99999));
-		var _gradientVector4 = [choose(- 1, 1), choose(- 1, 1)];
-		
+		random_set_seed(random_seed_value(_cellX + 1, _cellY + 1, _generationSeed));
+		var _gradientVector4 = [choose(- 1, 0, 1), choose(- 1, 1)];
 		
 		//Get the Distance Vectors of the Point (Vectors from the Point to the Grid Points)
 		var _distanceVector1 = [_pointX, - _pointY];

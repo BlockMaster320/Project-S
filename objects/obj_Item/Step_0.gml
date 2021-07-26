@@ -24,8 +24,8 @@ if (active && !collectItem)
 		for (var _i = 0; _i < 3; _i ++)
 		{
 			//Check Blocks on the Left Side
-			var _xLeftBlock1 = block_get(_gridLeftX - _i, _gridTopY, true);	//get the block
-			var _xLeftBlock2 = block_get(_gridLeftX - _i, _gridBottomY, true);
+			var _xLeftBlock1 = block_get(_gridLeftX - _i, _gridTopY);	//get the block
+			var _xLeftBlock2 = block_get(_gridLeftX - _i, _gridBottomY);
 		
 			if (_xLeftBlock1 == 0 || _xLeftBlock2 == 0)	//check if the block is empty
 			{
@@ -34,8 +34,8 @@ if (active && !collectItem)
 			}
 		
 			//Check Blocks on the Right Side
-			var _xRightBlock1 = block_get(_gridRightX + _i, _gridTopY, true);	//get the block
-			var _xRightBlock2 = block_get(_gridRightX + _i, _gridBottomY, true);
+			var _xRightBlock1 = block_get(_gridRightX + _i, _gridTopY);	//get the block
+			var _xRightBlock2 = block_get(_gridRightX + _i, _gridBottomY);
 		
 			if (_xRightBlock1 == 0 || _xRightBlock2 == 0)	//check if the block is empty
 			{
@@ -44,8 +44,8 @@ if (active && !collectItem)
 			}
 		
 			//Check Blocks Above the Item
-			var _yTopBlock1 = block_get(_gridLeftX, _gridTopY - _i, true);	//get the block
-			var _yTopBlock2 = block_get(_gridRightX, _gridTopY - _i, true);
+			var _yTopBlock1 = block_get(_gridLeftX, _gridTopY - _i);	//get the block
+			var _yTopBlock2 = block_get(_gridRightX, _gridTopY - _i);
 		
 			if (_yTopBlock1 == 0 || _yTopBlock2 == 0)	//check if the block is empty
 			{
@@ -54,8 +54,8 @@ if (active && !collectItem)
 			}
 		
 			//Check Blocks Below the Item
-			var _yBottomBlock1 = block_get(_gridLeftX, _gridBottomY + _i, true);	//get the block
-			var _yBottomBlock2 = block_get(_gridRightX, _gridBottomY + _i, true);
+			var _yBottomBlock1 = block_get(_gridLeftX, _gridBottomY + _i);	//get the block
+			var _yBottomBlock2 = block_get(_gridRightX, _gridBottomY + _i);
 		
 			if (_yBottomBlock1 == 0 || _yBottomBlock2 == 0)	//check if the block is empty
 			{

@@ -20,7 +20,7 @@ function station_search()
 		for (var _y = _searchStartY; _y <= _searchStartY + STATION_SEARCH_SIZE * 2; _y ++)
 		{
 			//Get the Block
-			var _block = block_get(_x, _y, true);
+			var _block = block_get(_x, _y);
 			if (_block == undefined)
 				continue;
 			

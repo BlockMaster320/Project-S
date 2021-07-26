@@ -21,7 +21,7 @@ enum messages
 	inventoryData,
 	playerCreate,
 	
-	chunkGet,
+	chunk,
 	
 	itemCreate,
 	itemChange,
@@ -82,6 +82,10 @@ enum inventorySection
 #macro CELL_SIZE 16
 #macro CHUNK_SIZE 16
 #macro CHUNK_GRID_SIZE 5
+#macro ZoomedOut:CHUNK_GRID_SIZE 20
+#macro CHUNK_DRAW_OVERRUN 2
+#macro ZoomedOut:CHUNK_DRAW_OVERRUN 160
+#macro CHUNK_GENERATE_RATE 20
 #macro SEA_LEVEL 0
 
 #macro CURSOR_BLINK_SPEED 35
