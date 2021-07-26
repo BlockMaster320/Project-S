@@ -10,12 +10,13 @@ function message_inventoryData(_buffer, _chosenPosition, _inventoryString, _armo
 	buffer_write(_buffer, buffer_string, _toolString);
 }
 
-function message_chunk_get(_buffer, _chunkX, _chunkY)
+function message_chunk(_buffer, _chunkX, _chunkY, _setChunk = false)
 {
 	buffer_seek(_buffer, buffer_seek_start, 0);
-	buffer_write(_buffer, buffer_u8, messages.chunkGet);
+	buffer_write(_buffer, buffer_u8, messages.chunk);
 	buffer_write(_buffer, buffer_s16, _chunkX);
 	buffer_write(_buffer, buffer_s16, _chunkY);
+	buffer_write(_buffer, buffer_bool, _setChunk);
 }
 
 function message_player_create(_buffer, _objectId, _clientName, _x, _y)

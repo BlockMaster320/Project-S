@@ -4,8 +4,8 @@ freeSize *= 1 + _zoom;
 freeX -= _zoom * (camera_get_view_width(VIEW) * 0.5);
 freeY -= _zoom * (camera_get_view_height(VIEW)* 0.5);
 
-freeX += (keyboard_check(ord("L")) - keyboard_check(ord("J"))) * 3;	//movement
-freeY += (keyboard_check(ord("K")) - keyboard_check(ord("I"))) * 3;
+freeX += (keyboard_check(ord("L")) - keyboard_check(ord("J"))) * 10;	//movement
+freeY += (keyboard_check(ord("K")) - keyboard_check(ord("I"))) * 10;
 
 if (keyboard_check_pressed(ord("P")))	//reset the zoom && movement values
 {

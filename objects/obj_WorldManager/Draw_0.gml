@@ -10,16 +10,16 @@ else
 	var _playerGridY = 0;
 }
 	
-var _visibleWidth = obj_Camera.viewWidth div CELL_SIZE + 2;	//get the size of the camera view (adding some value to make sure that the full view is filled)
-var _visibleHeight = obj_Camera.viewHeight div CELL_SIZE + 2;
+var _visibleWidth = obj_Camera.viewWidth div CELL_SIZE + CHUNK_DRAW_OVERRUN;	//get the size of the camera view (adding some value to make sure that the full view is filled)
+var _visibleHeight = obj_Camera.viewHeight div CELL_SIZE + CHUNK_DRAW_OVERRUN;
 
 //Draw the Chunks
 if (drawTimer % drawRate == 0)
 {
 	var _cornerChunk1 = [floor((_playerGridX - ceil(_visibleWidth * 0.5)) / CHUNK_SIZE),	//set the first && last chunk position to draw
 						 floor((_playerGridY - ceil(_visibleHeight * 0.5)) / CHUNK_SIZE)];
-	var _cornerChunk2 = [((_playerGridX + ceil(_visibleWidth * 0.5)) + 1) / CHUNK_SIZE,
-						 ((_playerGridY + ceil(_visibleHeight * 0.5)) + 1) / CHUNK_SIZE];
+	var _cornerChunk2 = [ceil(((_playerGridX + ceil(_visibleWidth * 0.5)) + 1) / CHUNK_SIZE),
+						 ceil(((_playerGridY + ceil(_visibleHeight * 0.5)) + 1) / CHUNK_SIZE)];
 
 	var _cornerBlock1 = [(CHUNK_SIZE + ((_playerGridX - ceil(_visibleWidth * 0.5)) % CHUNK_SIZE)) % CHUNK_SIZE,	//set the first && last block position to draw
 						 (CHUNK_SIZE + ((_playerGridY - ceil(_visibleHeight * 0.5)) % CHUNK_SIZE)) % CHUNK_SIZE];
@@ -50,8 +50,7 @@ if (drawTimer % drawRate == 0)
 			else if (_chunkY == _cornerChunk2[1] - 1) _blockYEnd = _cornerBlock2[1];
 			
 			//Get the Chunk
-			var _chunk = chunk_get(_chunkX, _chunkY, true);
-			/* _chunk = testChunk;*/
+			var _chunk = chunk_get(_chunkX, _chunkY, false);
 			if (_chunk == undefined) continue;
 			
 			//Draw the Chunk
@@ -72,11 +71,12 @@ if (drawTimer % drawRate == 0)
 						var _uvTop = _textureUVs[1];
 						var _uvRight = _textureUVs[2];
 						var _uvBottom = _textureUVs[3];
-					
-						var _spriteLeft = (_x + _blockX) * CELL_SIZE;	//where to draw the sprite in the room
-						var _spriteTop = (_y + _blockY) * CELL_SIZE;
-						var _spriteRight = (_x + _blockX) * CELL_SIZE + sprite_get_width(_block.sprite);
-						var _spriteBottom = (_y + _blockY) * CELL_SIZE + sprite_get_height(_block.sprite);
+						
+						var _overlapLength = (sprite_get_width(_block.sprite) - 16) * 0.5;
+						var _spriteLeft = (_x + _blockX) * CELL_SIZE - _overlapLength;	//where to draw the sprite in the room
+						var _spriteTop = (_y + _blockY) * CELL_SIZE - _overlapLength;
+						var _spriteRight = (_x + _blockX) * CELL_SIZE + 16 + _overlapLength;
+						var _spriteBottom = (_y + _blockY) * CELL_SIZE + 16 + _overlapLength;
 
 						//Add 2 Triangles to the Buffer (2 Halves of the Sprite - 3 Points Each)
 						vertex_position(vertexBuffer, _spriteLeft, _spriteTop);	//first triangle
@@ -107,7 +107,72 @@ if (drawTimer % drawRate == 0)
 			}
 		}
 	}
+	vertex_end(vertexBuffer);
 	
+	//Draw the Area
+	vertex_begin(vertexBufferLight, vertexFormatLight);
+	for (var _chunkX = _cornerChunk1[0]; _chunkX < _cornerChunk2[0]; _chunkX ++)
+	{
+		//Set the X Position of the First && Last Block in the Chunk to Be Drawn
+		var _blockXStart = 0;
+		var _blockXEnd = CHUNK_SIZE;
+		if (_chunkX == _cornerChunk1[0]) _blockXStart = _cornerBlock1[0];
+		else if (_chunkX == _cornerChunk2[0] - 1) _blockXEnd = _cornerBlock2[0];
+	
+		for (var _chunkY = _cornerChunk1[1]; _chunkY < _cornerChunk2[1]; _chunkY ++)
+		{
+			//Set the Y Position of the First && Last Block in the Chunk to Be Drawn
+			var _blockYStart = 0;
+			var _blockYEnd = CHUNK_SIZE;
+			if (_chunkY == _cornerChunk1[1]) _blockYStart = _cornerBlock1[1];
+			else if (_chunkY == _cornerChunk2[1] - 1) _blockYEnd = _cornerBlock2[1];
+			
+			//Get the Chunk
+			var _chunk = chunk_get(_chunkX, _chunkY, false);
+			if (_chunk == undefined) continue;
+			
+			//Draw the Chunk
+			var _x = _chunkX * CHUNK_SIZE;
+			var _y = _chunkY * CHUNK_SIZE;
+			for (var _blockX = _blockXStart; _blockX < _blockXEnd; _blockX ++)
+			{
+				for (var _blockY = _blockYStart; _blockY < _blockYEnd; _blockY ++)
+				{
+					var _block = _chunk[_blockX][_blockY];	//get the block
+					if (_block != 0)
+					{
+						//Get the Position of the Block
+						var _collisionMask = id_get_item(_block.id).collisionMask;
+						
+						var _spriteLeft = (_x + _blockX) * CELL_SIZE + _collisionMask[0];	//where to draw the sprite in the room
+						var _spriteTop = (_y + _blockY) * CELL_SIZE + _collisionMask[1];
+						var _spriteRight = (_x + _blockX) * CELL_SIZE + _collisionMask[2];
+						var _spriteBottom = (_y + _blockY) * CELL_SIZE + _collisionMask[3];
+
+						//Add 2 Triangles to the Buffer (2 Halves of the Sprite - 3 Points Each)
+						vertex_position(vertexBufferLight, _spriteLeft, _spriteTop);	//first triangle
+						vertex_colour(vertexBufferLight, c_white, 1);
+
+						vertex_position(vertexBufferLight, _spriteRight, _spriteTop);
+						vertex_colour(vertexBufferLight, c_white, 1);
+
+						vertex_position(vertexBufferLight, _spriteLeft, _spriteBottom);
+						vertex_colour(vertexBufferLight, c_white, 1);
+
+						vertex_position(vertexBufferLight, _spriteRight, _spriteTop);	//second triangle
+						vertex_colour(vertexBufferLight, c_white, 1);
+
+						vertex_position(vertexBufferLight, _spriteRight, _spriteBottom);
+						vertex_colour(vertexBufferLight, c_white, 1);
+
+						vertex_position(vertexBufferLight, _spriteLeft, _spriteBottom);
+						vertex_colour(vertexBufferLight, c_white, 1);
+					}
+				}
+			}
+		}
+	}
+	vertex_end(vertexBufferLight);
 	
 	//Draw Axis Lines
 	var _colour = noone;
@@ -123,10 +188,10 @@ if (drawTimer % drawRate == 0)
 							 _cornerChunk2[0] * CHUNK_SIZE * CELL_SIZE, _y * CHUNK_SIZE * CELL_SIZE - 1, _colour, _colour);
 		}
 	}
-	
-	vertex_end(vertexBuffer);
+
 }
 vertex_submit(vertexBuffer, pr_trianglelist, drawTexture);	//submit the vertex buffer
+/*vertex_submit(vertexBufferLight, pr_trianglelist, drawTexture);*/
 
 //Draw Items
 var _cornerPos1 = [(_playerGridX - ceil(_visibleWidth * 0.5)) * CELL_SIZE,	//get visible world area

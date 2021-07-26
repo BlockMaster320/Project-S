@@ -208,7 +208,7 @@ function station_slot_update(_station, _i, _j)
 function station_slot_change(_gridX, _gridY, _i, _j, _slot)
 {
 	//Set the Local Slot to the Updated One
-	var _station = block_get(_gridX, _gridY, true);
+	var _station = block_get(_gridX, _gridY);
 	var _stationItem = id_get_item(_station.id);
 	var _slotPosition = _j * _stationItem.storageWidth + _i;
 	_station.storageArray[_slotPosition] = _slot;

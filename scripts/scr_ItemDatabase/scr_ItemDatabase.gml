@@ -1,6 +1,5 @@
 /// Script storing structs with data of all items in the game.
 /// Item's struct can be optained by its ID using the function.
-
 function id_get_item(_id)
 {
 	//Item Data
@@ -11,7 +10,7 @@ function id_get_item(_id)
 		category : itemCategory.block,
 		
 		spriteItem : spr_Test1,
-		spriteBlock : spr_Block,
+		spriteBlock : spr_Dirt,
 		collisionMask : [0, 0, 16, 16],
 		
 		itemLimit : 16,
@@ -30,8 +29,8 @@ function id_get_item(_id)
 		category : itemCategory.block,
 		
 		spriteItem : spr_Test2,
-		spriteBlock : spr_BlockSmall,
-		collisionMask : [4, 4, 12, 12],
+		spriteBlock : spr_Rock,
+		collisionMask : [0, 0, 16, 16],
 		
 		itemLimit : 32,
 		craftItems : [[0, 4]],
@@ -165,6 +164,44 @@ function id_get_item(_id)
 		properties : [5, 1, 2]	//just for testing
 	};
 	
+	static Ruby =
+	{
+		id : 8,
+		name : "Ruby",
+		category : itemCategory.block,
+		
+		spriteItem : spr_Test5,
+		spriteBlock : spr_Ruby,
+		collisionMask : [0, 0, 16, 16],
+		
+		itemLimit : 32,
+		craftItems : [[0, 4]],
+		craftAmount : 2,
+		
+		placeable : true,
+		tileable: true,
+		persistence : 20
+	};
+	
+	static GoldOre =
+	{
+		id : 9,
+		name : "Gold Ore",
+		category : itemCategory.block,
+		
+		spriteItem : spr_Test6,
+		spriteBlock : spr_Test3,
+		collisionMask : [0, 0, 16, 16],
+		
+		itemLimit : 32,
+		craftItems : [[0, 4]],
+		craftAmount : 2,
+		
+		placeable : true,
+		tileable: false,
+		persistence : 20
+	};
+	
 	//Get a Specific Item By Its ID
 	switch(_id)
 	{
@@ -191,6 +228,12 @@ function id_get_item(_id)
 			break;
 		case 7:
 			return Ingot;
+			break;
+		case 8:
+			return Ruby;
+			break;
+		case 9:
+			return GoldOre;
 			break;
 	}
 }

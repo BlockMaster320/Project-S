@@ -12,7 +12,7 @@ if (array_length(variable_struct_get_names(chunkStruct)) == 0)
 	{
 		for (var _x = 0; _x < CHUNK_GRID_SIZE; _x ++)
 		{
-			var _chunk = chunk_get(chunkOrigin[0] + _x, chunkOrigin[1] + _y, true);
+			var _chunk = chunk_get(chunkOrigin[0] + _x, chunkOrigin[1] + _y);
 			chunk_set(chunkOrigin[0] + _x, chunkOrigin[1] + _y, _chunk);
 		}
 	}
@@ -42,13 +42,19 @@ else if (!array_equals(playerChunk, playerChunkPrevious))
 			var _y = chunkOrigin[1] + _i;
 			
 			//Save && Unset Chunks That Are Not Needed
-			var _chunk1 = chunk_get(_x1, _y, true);
+			var _chunk1 = chunk_get(_x1, _y);
 			chunk_save(_x1, _y, _chunk1);
 			chunk_unset(_x1, _y);
 			
-			//Load && Set New Chunks
-			var _chunk2 = chunk_get(_x2, _y, true);
-			chunk_set(_x2, _y, _chunk2);
+			//Get && Set New Chunks
+			var _chunk2 = chunk_get(_x2, _y, false);
+			if (obj_GameManager.serverSide != false)
+			{
+				if (_chunk2 == undefined)
+					ds_queue_enqueue(chunkGenerateQueue, [_x2, _y]);	//add the chunk's position to chunkGenerateQueue to be generated
+				else
+					chunk_set(_x2, _y, _chunk2);
+			}
 		}
 	}
 	
@@ -65,16 +71,35 @@ else if (!array_equals(playerChunk, playerChunkPrevious))
 			var _x = chunkOrigin[0] + _i;
 			
 			//Save && Unset Chunks That Are Not Needed
-			var _chunk1 = chunk_get(_x, _y1, true);
+			var _chunk1 = chunk_get(_x, _y1);
 			chunk_save(_x, _y1, _chunk1);
 			chunk_unset(_x, _y1);
 			
-			//Load && Set New Chunks
-			var _chunk2 = chunk_get(_x, _y2, true);
-			chunk_set(_x, _y2, _chunk2);
+			//Get && Set New Chunks
+			var _chunk2 = chunk_get(_x, _y2, false);
+			if (obj_GameManager.serverSide != false)
+			{
+				if (_chunk2 == undefined)
+					ds_queue_enqueue(chunkGenerateQueue, [_x, _y2]);	//add the chunk's position to chunkGenerateQueue to be generated
+				else
+					chunk_set(_x, _y2, _chunk2);
+			}
 		}
 	}
 }
+
+//Generate the Chunks Added to the chunkGenerateQueue
+if (chunkGenerateTimer == CHUNK_GENERATE_RATE)
+{
+	var _chunkPos = ds_queue_dequeue(chunkGenerateQueue);
+	if (_chunkPos != undefined)
+	{
+		var _chunk2 = chunk_get(_chunkPos[0], _chunkPos[1]);
+		chunk_set(_chunkPos[0], _chunkPos[1], _chunk2);
+	}
+	chunkGenerateTimer = 0;
+}
+chunkGenerateTimer ++;
 
 //Update the Player Chunk
 playerChunkPrevious = playerChunk;
@@ -99,7 +124,9 @@ if (autoSaving)
 /*
 show_debug_message("playerChunkX: " + string(playerChunk[0]));
 show_debug_message("playerChunkY: " + string(playerChunk[1]));*/
-/*show_debug_message(block_get(mouse_x, mouse_y, true));*/
+/*show_debug_message(block_get(mouse_x, mouse_y));*/
+/*var _blockX = (CHUNK_SIZE + floor(-1 / CELL_SIZE) % CHUNK_SIZE) % CHUNK_SIZE;
+show_debug_message(_blockX);*/
 
 /*
 if (instance_exists(obj_PlayerLocal))

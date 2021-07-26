@@ -154,18 +154,19 @@ function message_receive_server(_socket, _buffer)
 		}
 		break;
 		
-		case messages.chunkGet:	//send client a chunk on a given position
+		case messages.chunk:	//send client a chunk on a given position
 		{
 			//Get the Chunk's Position
 			var _chunkX = buffer_read(_buffer, buffer_s16);
 			var _chunkY = buffer_read(_buffer, buffer_s16);
+			var _setChunk = buffer_read(_buffer, buffer_bool);
 			
 			//Get the Chunk
 			var _chunk = chunk_get(_chunkX, _chunkY, true);
 			var _chunkString = json_stringify(_chunk);
 			
 			//Send the Chunk Back
-			message_chunk_get(serverBuffer, _chunkX, _chunkY);
+			message_chunk(serverBuffer, _chunkX, _chunkY, _setChunk);
 			buffer_write(serverBuffer, buffer_string, _chunkString);
 			network_send_packet(_socket, serverBuffer, buffer_tell(serverBuffer));
 		}
@@ -179,7 +180,7 @@ function message_receive_server(_socket, _buffer)
 			var _itemId = buffer_read(_buffer, buffer_u16);
 			
 			//Check If There's no Block in the Position
-			var _block = block_get(_blockGridX, _blockGridY, true);
+			var _block = block_get(_blockGridX, _blockGridY);
 			if (_block != 0) break;
 			
 			//Send a Message to Create the Block
@@ -200,7 +201,7 @@ function message_receive_server(_socket, _buffer)
 			var _blockGridY = buffer_read(_buffer, buffer_s16);
 			
 			//Get the Block
-			var _block = block_get(_blockGridX, _blockGridY, true);
+			var _block = block_get(_blockGridX, _blockGridY);
 			if (_block == 0) break;
 			
 			//Set the Dropped Item's Position
@@ -484,17 +485,19 @@ function message_receive_client(_socket, _buffer)
 		}
 		break;
 		
-		case messages.chunkGet:	//set a chunk received from the server
+		case messages.chunk:	//set a chunk received from the server
 		{
 			//Get the Chunk's Position
 			var _chunkX = buffer_read(_buffer, buffer_s16);
 			var _chunkY = buffer_read(_buffer, buffer_s16);
+			var _setChunk = buffer_read(_buffer, buffer_bool);
 			var _chunk = json_parse(buffer_read(_buffer, buffer_string));
 			
 			//Set the Chunk in the worldStruct && chunkStruct
 			var _fileChunkPos = string(_chunkX) + "," + string(_chunkY);
 			variable_struct_set(obj_WorldManager.worldStruct, _fileChunkPos, _chunk);
-			chunk_set(_chunkX, _chunkY, _chunk);
+			if (_setChunk)
+				chunk_set(_chunkX, _chunkY, _chunk);
 		}
 		break;
 		
@@ -537,7 +540,8 @@ function message_receive_client(_socket, _buffer)
 			var _blockGridY = buffer_read(_buffer, buffer_s16);
 			
 			//Update the Station List
-			var _block = block_get(_blockGridX, _blockGridY, true);
+			var _block = block_get(_blockGridX, _blockGridY, false);
+			if (_block == undefined) break;
 			var _blockItem = id_get_item(_block.id);
 			if (_blockItem.category = itemCategory.station)
 				obj_Inventory.searchForStations = true;
@@ -561,7 +565,7 @@ function message_receive_client(_socket, _buffer)
 			station_slot_change(_gridX, _gridY, _i, _j, _slot);
 			
 			//Set the Local Slot to the Udpated One
-			var _station = block_get(_gridX, _gridY, true);
+			var _station = block_get(_gridX, _gridY);
 			var _stationItem = id_get_item(_station.id);
 			var _slotPosition = _j * _stationItem.storageWidth + _i;
 			

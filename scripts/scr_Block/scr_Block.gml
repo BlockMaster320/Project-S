@@ -30,7 +30,7 @@ function Block(_id) constructor
 function block_destroy(_blockGridX, _blockGridY)
 {
 	//Get Block && Its Center Position
-	var _selectedBlock = block_get(_blockGridX, _blockGridY, true);
+	var _selectedBlock = block_get(_blockGridX, _blockGridY);
 	var _blockCenterX = _blockGridX * CELL_SIZE + CELL_SIZE * 0.5;
 	var _blockCenterY = _blockGridY * CELL_SIZE + CELL_SIZE * 0.5;
 	
